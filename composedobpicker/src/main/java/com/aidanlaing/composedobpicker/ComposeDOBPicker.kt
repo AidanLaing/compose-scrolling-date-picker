@@ -34,6 +34,18 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 
+// TODO text styles for date items
+// TODO day picker
+// TODO year picker
+// TODO invalid day picker handling when month or year changed to leap year
+// TODO animations
+// TODO dialog / bottom sheet options?
+// TODO Customization (Material theming support)?
+// TODO reduce gradle dependencies, min sdk
+// TODO integration testing with CI
+// TODO README
+// TODO Maven publishing
+// TODO Android dev post
 @Composable
 fun ComposeDOBPicker(
     modifier: Modifier = Modifier,
@@ -44,23 +56,7 @@ fun ComposeDOBPicker(
         DateElement.YEAR
     ),
     colors: ComposeDOBPickerColors = ComposeDOBPickerColors(),
-    dayTitleText: String = "Day",
-    monthTitleText: String = "Month",
-    yearTitleText: String = "Year",
-    monthNames: Map<Month, String> = mapOf(
-        Month.JAN to "January",
-        Month.FEB to "February",
-        Month.MAR to "March",
-        Month.APR to "April",
-        Month.MAY to "May",
-        Month.JUN to "June",
-        Month.JUL to "July",
-        Month.AUG to "August",
-        Month.SEP to "September",
-        Month.OCT to "October",
-        Month.NOV to "November",
-        Month.DEC to "December"
-    )
+    textStrings: ComposeDOBPickerTextStrings = ComposeDOBPickerTextStrings()
 ) {
     var selectedDateElement: DateElement by rememberSaveable { mutableStateOf(DateElement.DAY) }
     var selectedDay: Int? by rememberSaveable { mutableStateOf(null) }
@@ -75,9 +71,12 @@ fun ComposeDOBPicker(
             val dateElementList = dateElementOrder.toList()
             dateElementList.forEachIndexed { index, dateElement ->
                 val text = when (dateElement) {
-                    DateElement.DAY -> selectedDay?.toString() ?: dayTitleText
-                    DateElement.MONTH -> selectedMonth?.let { monthNames[it] } ?: monthTitleText
-                    DateElement.YEAR -> selectedYear?.toString() ?: yearTitleText
+                    DateElement.DAY -> selectedDay?.toString() ?: textStrings.dayTitleText
+                    DateElement.MONTH -> selectedMonth
+                        ?.let { month -> textStrings.monthNames[month] }
+                        ?: textStrings.monthTitleText
+
+                    DateElement.YEAR -> selectedYear?.toString() ?: textStrings.yearTitleText
                 }
                 SelectableTextBox(
                     text = text,
@@ -95,22 +94,36 @@ fun ComposeDOBPicker(
         Spacer(modifier = Modifier.height(24.dp))
 
         when (selectedDateElement) {
-            DateElement.DAY -> DayPicker()
+            DateElement.DAY -> DayPicker(
+                selectedDay = selectedDay,
+                selectedMonth = selectedMonth,
+                selectedYear = selectedYear,
+                onDayClick = { day -> selectedDay = day }
+            )
+
             DateElement.MONTH -> MonthPicker(
                 selectedMonth = selectedMonth,
                 spacingDp = spacingDp,
                 colors = colors,
-                monthNames = monthNames,
+                monthNames = textStrings.monthNames,
                 onMonthClick = { month -> selectedMonth = month }
             )
 
-            DateElement.YEAR -> YearPicker()
+            DateElement.YEAR -> YearPicker(
+                selectedYear = selectedYear,
+                onYearClick = { year -> selectedYear = year }
+            )
         }
     }
 }
 
 @Composable
-private fun DayPicker() {
+private fun DayPicker(
+    selectedDay: Int?,
+    selectedMonth: Month?,
+    selectedYear: Int?,
+    onDayClick: (Int) -> Unit
+) {
 
 }
 
@@ -150,7 +163,10 @@ private fun MonthPicker(
 }
 
 @Composable
-private fun YearPicker() {
+private fun YearPicker(
+    selectedYear: Int?,
+    onYearClick: (Int) -> Unit
+) {
 
 }
 
@@ -208,4 +224,25 @@ data class ComposeDOBPickerColors(
     val dateItemBoxColor: Color = Color(0xFFF5F5F5),
     val dateItemSelectedTextColor: Color = Color(0xFFE8E8F6),
     val dateItemSelectedBoxColor: Color = Color(0xFF5865F2)
+)
+
+@Immutable
+data class ComposeDOBPickerTextStrings(
+    val dayTitleText: String = "Day",
+    val monthTitleText: String = "Month",
+    val yearTitleText: String = "Year",
+    val monthNames: Map<Month, String> = mapOf(
+        Month.JAN to "January",
+        Month.FEB to "February",
+        Month.MAR to "March",
+        Month.APR to "April",
+        Month.MAY to "May",
+        Month.JUN to "June",
+        Month.JUL to "July",
+        Month.AUG to "August",
+        Month.SEP to "September",
+        Month.OCT to "October",
+        Month.NOV to "November",
+        Month.DEC to "December"
+    )
 )
