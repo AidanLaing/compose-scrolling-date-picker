@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 
+// https://www.behance.net/gallery/175723981/Date-Picker?tracking_source=search_projects|date+of+birth+picker&l=2
 // TODO text styles for date items
 // TODO day picker
 // TODO year picker
