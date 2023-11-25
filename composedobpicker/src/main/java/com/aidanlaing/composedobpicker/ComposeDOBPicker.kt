@@ -8,11 +8,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,17 +32,19 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 
 // https://www.behance.net/gallery/175723981/Date-Picker?tracking_source=search_projects|date+of+birth+picker&l=2
-// TODO text styles for date items
 // TODO day picker
 // TODO year picker
 // TODO invalid day picker handling when month or year changed to leap year
+// TODO max and min date params
 // TODO animations
+// TODO landscape mode / tablet
 // TODO dialog / bottom sheet options?
 // TODO Customization (Material theming support)?
 // TODO reduce gradle dependencies, min sdk
@@ -57,6 +62,7 @@ fun ComposeDOBPicker(
         DateElement.YEAR
     ),
     colors: ComposeDOBPickerColors = ComposeDOBPickerColors(),
+    textStyles: ComposeDOBPickerTextStyles = ComposeDOBPickerTextStyles(),
     textStrings: ComposeDOBPickerTextStrings = ComposeDOBPickerTextStrings()
 ) {
     var selectedDateElement: DateElement by rememberSaveable { mutableStateOf(DateElement.DAY) }
@@ -86,6 +92,7 @@ fun ComposeDOBPicker(
                     selected = selectedDateElement == dateElement,
                     selectedTextColor = colors.dateElementSelectedTextColor,
                     selectedBoxColor = colors.dateElementSelectedBoxColor,
+                    textStyle = textStyles.dateElementTextStyle,
                     onClick = { selectedDateElement = dateElement },
                     modifier = Modifier.weight(weight = 1f)
                 )
@@ -99,6 +106,8 @@ fun ComposeDOBPicker(
                 selectedDay = selectedDay,
                 selectedMonth = selectedMonth,
                 selectedYear = selectedYear,
+                colors = colors,
+                textStyles = textStyles,
                 onDayClick = { day -> selectedDay = day }
             )
 
@@ -107,12 +116,19 @@ fun ComposeDOBPicker(
                 spacingDp = spacingDp,
                 colors = colors,
                 monthNames = textStrings.monthNames,
-                onMonthClick = { month -> selectedMonth = month }
+                textStyles = textStyles,
+                onMonthClick = { month ->
+                    selectedMonth = month
+                    selectedDay = ensureValidDayNum(selectedDay, selectedMonth, selectedYear)
+                }
             )
 
             DateElement.YEAR -> YearPicker(
                 selectedYear = selectedYear,
-                onYearClick = { year -> selectedYear = year }
+                onYearClick = { year ->
+                    selectedYear = year
+                    selectedDay = ensureValidDayNum(selectedDay, selectedMonth, selectedYear)
+                }
             )
         }
     }
@@ -123,9 +139,34 @@ private fun DayPicker(
     selectedDay: Int?,
     selectedMonth: Month?,
     selectedYear: Int?,
-    onDayClick: (Int) -> Unit
+    colors: ComposeDOBPickerColors,
+    textStyles: ComposeDOBPickerTextStyles,
+    onDayClick: (Int) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-
+    val numDays: Int = calculateNumDaysInMonth(selectedMonth, selectedYear)
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(6),
+        content = {
+            (1 until numDays + 1).forEach { dayNum ->
+                item(key = dayNum) {
+                    SelectableTextBox(
+                        text = dayNum.toString(),
+                        textColor = colors.dateItemTextColor,
+                        boxColor = colors.dateItemBoxColor,
+                        selected = dayNum == selectedDay,
+                        selectedBoxColor = colors.dateItemSelectedBoxColor,
+                        selectedTextColor = colors.dateItemSelectedTextColor,
+                        textStyle = textStyles.dateItemTextStyle,
+                        onClick = { onDayClick(dayNum) },
+                        modifier = Modifier.aspectRatio(1f),
+                        paddingValues = PaddingValues(0.dp)
+                    )
+                }
+            }
+        },
+        modifier = modifier
+    )
 }
 
 @Composable
@@ -133,6 +174,7 @@ private fun MonthPicker(
     selectedMonth: Month?,
     spacingDp: Dp,
     colors: ComposeDOBPickerColors,
+    textStyles: ComposeDOBPickerTextStyles,
     monthNames: Map<Month, String>,
     onMonthClick: (Month) -> Unit,
     modifier: Modifier = Modifier
@@ -152,6 +194,7 @@ private fun MonthPicker(
                             selected = selected,
                             selectedTextColor = colors.dateItemSelectedTextColor,
                             selectedBoxColor = colors.dateItemSelectedBoxColor,
+                            textStyle = textStyles.dateItemTextStyle,
                             onClick = { onMonthClick(month) },
                             modifier = Modifier.weight(1f)
                         )
@@ -179,14 +222,10 @@ private fun SelectableTextBox(
     selected: Boolean,
     selectedBoxColor: Color,
     selectedTextColor: Color,
+    textStyle: TextStyle,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     boxShape: Shape = RoundedCornerShape(4.dp),
-    textStyle: TextStyle = TextStyle(
-        fontSize = TextUnit(16f, TextUnitType.Sp),
-        fontWeight = FontWeight.Medium,
-        fontStyle = FontStyle.Normal
-    ),
     paddingValues: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 12.dp)
 ) {
     Box(
@@ -202,9 +241,33 @@ private fun SelectableTextBox(
                 .wrapContentSize()
                 .padding(paddingValues = paddingValues),
             style = textStyle,
-            color = if (selected) selectedTextColor else textColor
+            color = if (selected) selectedTextColor else textColor,
+            textAlign = TextAlign.Center
         )
     }
+}
+
+private fun calculateNumDaysInMonth(selectedMonth: Month?, selectedYear: Int?): Int =
+    when (selectedMonth) {
+        null, Month.JAN, Month.MAR, Month.MAY, Month.JUL, Month.AUG, Month.OCT, Month.DEC -> 31
+        Month.APR, Month.JUN, Month.SEP, Month.NOV -> 30
+        Month.FEB -> if (calculateIsLeapYear(selectedYear)) 29 else 28
+    }
+
+private fun calculateIsLeapYear(selectedYear: Int?): Boolean =
+    if (selectedYear != null && selectedYear % 4 == 0) {
+        if (selectedYear % 100 == 0) selectedYear % 400 == 0 else true
+    } else {
+        false
+    }
+
+private fun ensureValidDayNum(selectedDay: Int?, selectedMonth: Month?, selectedYear: Int?): Int? {
+    if (selectedDay == null) return null
+
+    val numDaysInMonth = calculateNumDaysInMonth(selectedMonth, selectedYear)
+    if (selectedDay > numDaysInMonth) return numDaysInMonth
+
+    return selectedDay
 }
 
 enum class DateElement {
@@ -246,4 +309,18 @@ data class ComposeDOBPickerTextStrings(
         Month.NOV to "November",
         Month.DEC to "December"
     )
+)
+
+@Immutable
+data class ComposeDOBPickerTextStyles(
+    val dateElementTextStyle: TextStyle = TextStyle(
+        fontSize = TextUnit(16f, TextUnitType.Sp),
+        fontWeight = FontWeight.Medium,
+        fontStyle = FontStyle.Normal
+    ),
+    val dateItemTextStyle: TextStyle = TextStyle(
+        fontSize = TextUnit(14f, TextUnitType.Sp),
+        fontWeight = FontWeight.Normal,
+        fontStyle = FontStyle.Normal
+    ),
 )
