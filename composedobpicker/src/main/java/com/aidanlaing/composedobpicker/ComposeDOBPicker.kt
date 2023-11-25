@@ -70,35 +70,19 @@ fun ComposeDOBPicker(
     var selectedMonth: Month? by rememberSaveable { mutableStateOf(null) }
     var selectedYear: Int? by rememberSaveable { mutableStateOf(null) }
     Column(modifier = modifier) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            val dateElementList = dateElementOrder.toList()
-            dateElementList.forEachIndexed { index, dateElement ->
-                val text = when (dateElement) {
-                    DateElement.DAY -> selectedDay?.toString() ?: textStrings.dayTitleText
-                    DateElement.MONTH -> selectedMonth
-                        ?.let { month -> textStrings.monthNames[month] }
-                        ?: textStrings.monthTitleText
+        DateElements(
+            dateElementOrder = dateElementOrder,
+            selectedDateElement = selectedDateElement,
+            selectedDay = selectedDay,
+            selectedMonth = selectedMonth,
+            selectedYear = selectedYear,
+            textStrings = textStrings,
+            colors = colors,
+            textStyles = textStyles,
+            spacingDp = spacingDp,
+            onDateElementClick = { dateElement -> selectedDateElement = dateElement }
+        )
 
-                    DateElement.YEAR -> selectedYear?.toString() ?: textStrings.yearTitleText
-                }
-                SelectableTextBox(
-                    text = text,
-                    textColor = colors.dateElementTextColor,
-                    boxColor = colors.dateElementBoxColor,
-                    selected = selectedDateElement == dateElement,
-                    selectedTextColor = colors.dateElementSelectedTextColor,
-                    selectedBoxColor = colors.dateElementSelectedBoxColor,
-                    textStyle = textStyles.dateElementTextStyle,
-                    onClick = { selectedDateElement = dateElement },
-                    modifier = Modifier.weight(weight = 1f)
-                )
-                if (index != dateElementList.lastIndex) Spacer(modifier = Modifier.width(spacingDp))
-            }
-        }
         Spacer(modifier = Modifier.height(24.dp))
 
         when (selectedDateElement) {
@@ -135,6 +119,51 @@ fun ComposeDOBPicker(
 }
 
 @Composable
+private fun DateElements(
+    dateElementOrder: Triple<DateElement, DateElement, DateElement>,
+    selectedDateElement: DateElement,
+    selectedDay: Int?,
+    selectedMonth: Month?,
+    selectedYear: Int?,
+    textStrings: ComposeDOBPickerTextStrings,
+    colors: ComposeDOBPickerColors,
+    textStyles: ComposeDOBPickerTextStyles,
+    spacingDp: Dp,
+    onDateElementClick: (DateElement) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        val dateElementList = dateElementOrder.toList()
+        dateElementList.forEachIndexed { index, dateElement ->
+            val text = when (dateElement) {
+                DateElement.DAY -> selectedDay?.toString() ?: textStrings.dayTitleText
+                DateElement.MONTH -> selectedMonth
+                    ?.let { month -> textStrings.monthNames[month] }
+                    ?: textStrings.monthTitleText
+
+                DateElement.YEAR -> selectedYear?.toString() ?: textStrings.yearTitleText
+            }
+            SelectableTextBox(
+                text = text,
+                textColor = colors.dateElementTextColor,
+                boxColor = colors.dateElementBoxColor,
+                selected = selectedDateElement == dateElement,
+                selectedTextColor = colors.dateElementSelectedTextColor,
+                selectedBoxColor = colors.dateElementSelectedBoxColor,
+                textStyle = textStyles.dateElementTextStyle,
+                onClick = { onDateElementClick(dateElement) },
+                modifier = Modifier.weight(weight = 1f)
+            )
+            if (index != dateElementList.lastIndex) Spacer(modifier = Modifier.width(spacingDp))
+        }
+    }
+}
+
+@Composable
 private fun DayPicker(
     selectedDay: Int?,
     selectedMonth: Month?,
@@ -146,7 +175,7 @@ private fun DayPicker(
 ) {
     val numDays: Int = calculateNumDaysInMonth(selectedMonth, selectedYear)
     LazyVerticalGrid(
-        columns = GridCells.Fixed(6),
+        columns = GridCells.Fixed(7),
         content = {
             (1 until numDays + 1).forEach { dayNum ->
                 item(key = dayNum) {
