@@ -55,7 +55,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun ComposeDOBPicker(
     modifier: Modifier = Modifier,
-    spacingDp: Dp = 4.dp,
+    itemSpacingDp: Dp = 4.dp,
     dateElementOrder: Triple<DateElement, DateElement, DateElement> = Triple(
         DateElement.DAY,
         DateElement.MONTH,
@@ -79,7 +79,7 @@ fun ComposeDOBPicker(
             textStrings = textStrings,
             colors = colors,
             textStyles = textStyles,
-            spacingDp = spacingDp,
+            itemSpacingDp = itemSpacingDp,
             onDateElementClick = { dateElement -> selectedDateElement = dateElement }
         )
 
@@ -92,12 +92,14 @@ fun ComposeDOBPicker(
                 selectedYear = selectedYear,
                 colors = colors,
                 textStyles = textStyles,
+                minSize = 48.dp,
+                itemSpacingDp = itemSpacingDp,
                 onDayClick = { day -> selectedDay = day }
             )
 
             DateElement.MONTH -> MonthPicker(
                 selectedMonth = selectedMonth,
-                spacingDp = spacingDp,
+                itemSpacingDp = itemSpacingDp,
                 colors = colors,
                 monthNames = textStrings.monthNames,
                 textStyles = textStyles,
@@ -128,7 +130,7 @@ private fun DateElements(
     textStrings: ComposeDOBPickerTextStrings,
     colors: ComposeDOBPickerColors,
     textStyles: ComposeDOBPickerTextStyles,
-    spacingDp: Dp,
+    itemSpacingDp: Dp,
     onDateElementClick: (DateElement) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -158,7 +160,7 @@ private fun DateElements(
                 onClick = { onDateElementClick(dateElement) },
                 modifier = Modifier.weight(weight = 1f)
             )
-            if (index != dateElementList.lastIndex) Spacer(modifier = Modifier.width(spacingDp))
+            if (index != dateElementList.lastIndex) Spacer(modifier = Modifier.width(itemSpacingDp))
         }
     }
 }
@@ -170,12 +172,14 @@ private fun DayPicker(
     selectedYear: Int?,
     colors: ComposeDOBPickerColors,
     textStyles: ComposeDOBPickerTextStyles,
+    itemSpacingDp: Dp,
+    minSize: Dp,
     onDayClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val numDays: Int = calculateNumDaysInMonth(selectedMonth, selectedYear)
     LazyVerticalGrid(
-        columns = GridCells.Fixed(7),
+        columns = GridCells.Adaptive(minSize),
         content = {
             (1 until numDays + 1).forEach { dayNum ->
                 item(key = dayNum) {
@@ -194,14 +198,16 @@ private fun DayPicker(
                 }
             }
         },
-        modifier = modifier
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(itemSpacingDp),
+        verticalArrangement = Arrangement.spacedBy(itemSpacingDp)
     )
 }
 
 @Composable
 private fun MonthPicker(
     selectedMonth: Month?,
-    spacingDp: Dp,
+    itemSpacingDp: Dp,
     colors: ComposeDOBPickerColors,
     textStyles: ComposeDOBPickerTextStyles,
     monthNames: Map<Month, String>,
@@ -227,10 +233,14 @@ private fun MonthPicker(
                             onClick = { onMonthClick(month) },
                             modifier = Modifier.weight(1f)
                         )
-                        if (index != months.lastIndex) Spacer(modifier = Modifier.width(spacingDp))
+                        if (index != months.lastIndex) Spacer(
+                            modifier = Modifier.width(
+                                itemSpacingDp
+                            )
+                        )
                     }
                 }
-                Spacer(modifier = Modifier.height(spacingDp))
+                Spacer(modifier = Modifier.height(itemSpacingDp))
             }
     }
 }
