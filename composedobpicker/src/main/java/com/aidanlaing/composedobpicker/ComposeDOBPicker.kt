@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 // TODO max and min date params
 // TODO animations
 // TODO landscape mode / tablet
+// TODO auto advance
 // TODO dialog / bottom sheet options?
 // TODO Customization (Material theming support)?
 // TODO reduce gradle dependencies, min sdk
@@ -294,10 +295,10 @@ private fun calculateNumDaysInMonth(selectedMonth: Month?, selectedYear: Int?): 
     }
 
 private fun calculateIsLeapYear(selectedYear: Int?): Boolean =
-    if (selectedYear != null && selectedYear % 4 == 0) {
-        if (selectedYear % 100 == 0) selectedYear % 400 == 0 else true
-    } else {
-        false
+    when {
+        selectedYear == null -> true
+        selectedYear % 4 == 0 -> if (selectedYear % 100 == 0) selectedYear % 400 == 0 else true
+        else -> false
     }
 
 private fun ensureValidDayNum(selectedDay: Int?, selectedMonth: Month?, selectedYear: Int?): Int? {
@@ -320,11 +321,11 @@ enum class Month {
 @Immutable
 data class ComposeDOBPickerColors(
     val dateElementTextColor: Color = Color(0xFF5865F2),
-    val dateElementBoxColor: Color = Color(0xFFF1F2FF),
+    val dateElementBoxColor: Color = Color(0xFFF1F1F1),
     val dateElementSelectedTextColor: Color = Color(0xFFE8E8F6),
     val dateElementSelectedBoxColor: Color = Color(0xFF5865F2),
-    val dateItemTextColor: Color = Color(0xFFC1C1C1),
-    val dateItemBoxColor: Color = Color(0xFFF5F5F5),
+    val dateItemTextColor: Color = Color(0xFFA1A1A1),
+    val dateItemBoxColor: Color = Color(0xFFF1F1F1),
     val dateItemSelectedTextColor: Color = Color(0xFFE8E8F6),
     val dateItemSelectedBoxColor: Color = Color(0xFF5865F2)
 )
