@@ -1,7 +1,9 @@
 package com.aidanlaing.composedobpicker
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,8 +16,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,6 +33,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -58,15 +65,15 @@ fun ComposeDOBPicker(
     modifier: Modifier = Modifier,
     itemSpacingDp: Dp = 4.dp,
     dateElementOrder: Triple<DateElement, DateElement, DateElement> = Triple(
-        DateElement.DAY,
+        DateElement.YEAR,
         DateElement.MONTH,
-        DateElement.YEAR
+        DateElement.DAY
     ),
     colors: ComposeDOBPickerColors = ComposeDOBPickerColors(),
     textStyles: ComposeDOBPickerTextStyles = ComposeDOBPickerTextStyles(),
     textStrings: ComposeDOBPickerTextStrings = ComposeDOBPickerTextStrings()
 ) {
-    var selectedDateElement: DateElement by rememberSaveable { mutableStateOf(DateElement.DAY) }
+    var selectedDateElement: DateElement by rememberSaveable { mutableStateOf(DateElement.YEAR) }
     var selectedDay: Int? by rememberSaveable { mutableStateOf(null) }
     var selectedMonth: Month? by rememberSaveable { mutableStateOf(null) }
     var selectedYear: Int? by rememberSaveable { mutableStateOf(null) }
@@ -112,7 +119,9 @@ fun ComposeDOBPicker(
 
             DateElement.YEAR -> YearPicker(
                 selectedYear = selectedYear,
-                onYearClick = { year ->
+                colors = colors,
+                textStyles = textStyles,
+                onYearSelected = { year ->
                     selectedYear = year
                     selectedDay = ensureValidDayNum(selectedDay, selectedMonth, selectedYear)
                 }
@@ -234,11 +243,9 @@ private fun MonthPicker(
                             onClick = { onMonthClick(month) },
                             modifier = Modifier.weight(1f)
                         )
-                        if (index != months.lastIndex) Spacer(
-                            modifier = Modifier.width(
-                                itemSpacingDp
-                            )
-                        )
+                        if (index != months.lastIndex) {
+                            Spacer(modifier = Modifier.width(itemSpacingDp))
+                        }
                     }
                 }
                 Spacer(modifier = Modifier.height(itemSpacingDp))
@@ -249,9 +256,22 @@ private fun MonthPicker(
 @Composable
 private fun YearPicker(
     selectedYear: Int?,
-    onYearClick: (Int) -> Unit
+    onYearSelected: (Int) -> Unit,
+    colors: ComposeDOBPickerColors,
+    textStyles: ComposeDOBPickerTextStyles,
+    modifier: Modifier = Modifier
 ) {
-
+    InfiniteCircularList(
+        itemHeight = 56.dp,
+        items = (1900 .. 2023).toList(),
+        selectedItem = selectedYear ?: 2000,
+        textStyle = textStyles.yearItemTextStyle,
+        textColor = colors.dateItemTextColor,
+        selectedTextColor = colors.dateItemSelectedTextColor,
+        onItemSelected = { _, year -> onYearSelected(year) },
+        modifier = modifier,
+        numberOfDisplayedItems = 5
+    )
 }
 
 @Composable
@@ -284,6 +304,64 @@ private fun SelectableTextBox(
             color = if (selected) selectedTextColor else textColor,
             textAlign = TextAlign.Center
         )
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun <T> InfiniteCircularList(
+    itemHeight: Dp,
+    items: List<T>,
+    selectedItem: T,
+    textStyle: TextStyle,
+    textColor: Color,
+    selectedTextColor: Color,
+    numberOfDisplayedItems: Int,
+    onItemSelected: (index: Int, item: T) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val itemHalfHeight = LocalDensity.current.run { itemHeight.toPx() / 2f }
+    val parentHalfHeight = ((itemHalfHeight * 2) * numberOfDisplayedItems) / 2f
+    var selectedIndex by rememberSaveable {
+        mutableStateOf(items.indexOf(selectedItem))
+    }
+    val scrollState =
+        rememberLazyListState((selectedIndex - (numberOfDisplayedItems / 2) + (items.size * (Int.MAX_VALUE / 2 / items.size))))
+
+    LazyColumn(
+        modifier = modifier
+            .height(itemHeight * numberOfDisplayedItems),
+        state = scrollState,
+        flingBehavior = rememberSnapFlingBehavior(lazyListState = scrollState)
+    ) {
+        items(count = Int.MAX_VALUE) { index ->
+            val item = items[index % items.size]
+            Box(
+                modifier = Modifier
+                    .height(itemHeight)
+                    .fillMaxWidth()
+                    .onGloballyPositioned { coordinates ->
+                        val y = coordinates.positionInParent().y + itemHalfHeight
+                        val isSelected =
+                            (y > parentHalfHeight - itemHalfHeight && y < parentHalfHeight + itemHalfHeight)
+                        if (isSelected && selectedIndex != index) {
+                            onItemSelected(index, item)
+                            selectedIndex = index
+                        }
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = item.toString(),
+                    style = textStyle,
+                    color = if (selectedIndex == index) {
+                        selectedTextColor
+                    } else {
+                        textColor
+                    }
+                )
+            }
+        }
     }
 }
 
@@ -363,4 +441,9 @@ data class ComposeDOBPickerTextStyles(
         fontWeight = FontWeight.Normal,
         fontStyle = FontStyle.Normal
     ),
+    val yearItemTextStyle: TextStyle = TextStyle(
+        fontSize = TextUnit(28f, TextUnitType.Sp),
+        fontWeight = FontWeight.Medium,
+        fontStyle = FontStyle.Normal
+    )
 )
