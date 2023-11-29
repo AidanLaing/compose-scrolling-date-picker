@@ -53,14 +53,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.math.absoluteValue
 
-// https://www.behance.net/gallery/175723981/Date-Picker?tracking_source=search_projects|date+of+birth+picker&l=2
-// TODO day picker
-// TODO year picker
-// TODO invalid day picker handling when month or year changed to leap year
+// TODO fast scroll bug
+// TODO code cleanup and optimization
 // TODO max and min date params
 // TODO animations
 // TODO landscape mode / tablet
-// TODO auto advance
+// TODO code cleanup and optimization
 // TODO dialog / bottom sheet options?
 // TODO Customization (Material theming support)?
 // TODO reduce gradle dependencies, min sdk
@@ -427,8 +425,8 @@ fun <T> ScrollSelectionList(
                 val indexDiff = (selectedIndex - index).absoluteValue
                 val fontSize =
                     LocalDensity.current.run {
-                        (textStyle.fontSize.toPx() - indexDiff * 6.sp.toPx()).coerceAtLeast(
-                            16.sp.toPx()
+                        (textStyle.fontSize.toPx() - indexDiff * 2.sp.toPx()).coerceAtLeast(
+                            14.sp.toPx()
                         ).toSp()
                     }
                 val animatedTextStyle by animateTextStyleAsState(
@@ -556,7 +554,7 @@ data class ComposeDOBPickerTextStyles(
         fontStyle = FontStyle.Normal
     ),
     val yearItemTextStyle: TextStyle = TextStyle(
-        fontSize = TextUnit(28f, TextUnitType.Sp),
+        fontSize = TextUnit(24f, TextUnitType.Sp),
         fontWeight = FontWeight.Medium,
         fontStyle = FontStyle.Normal
     )
