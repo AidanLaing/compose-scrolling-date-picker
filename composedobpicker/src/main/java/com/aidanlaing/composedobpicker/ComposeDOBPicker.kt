@@ -1,5 +1,8 @@
 package com.aidanlaing.composedobpicker
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -10,22 +13,24 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -39,11 +44,14 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.lerp
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import kotlin.math.absoluteValue
 
 // https://www.behance.net/gallery/175723981/Date-Picker?tracking_source=search_projects|date+of+birth+picker&l=2
 // TODO day picker
@@ -93,40 +101,75 @@ fun ComposeDOBPicker(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        when (selectedDateElement) {
-            DateElement.DAY -> DayPicker(
-                selectedDay = selectedDay,
-                selectedMonth = selectedMonth,
-                selectedYear = selectedYear,
-                colors = colors,
-                textStyles = textStyles,
-                minSize = 48.dp,
-                itemSpacingDp = itemSpacingDp,
-                onDayClick = { day -> selectedDay = day }
-            )
-
-            DateElement.MONTH -> MonthPicker(
-                selectedMonth = selectedMonth,
-                itemSpacingDp = itemSpacingDp,
-                colors = colors,
-                monthNames = textStrings.monthNames,
-                textStyles = textStyles,
-                onMonthClick = { month ->
-                    selectedMonth = month
-                    selectedDay = ensureValidDayNum(selectedDay, selectedMonth, selectedYear)
-                }
-            )
-
-            DateElement.YEAR -> YearPicker(
+        Row(modifier = Modifier.fillMaxWidth()) {
+            YearPicker(
                 selectedYear = selectedYear,
                 colors = colors,
                 textStyles = textStyles,
                 onYearSelected = { year ->
                     selectedYear = year
                     selectedDay = ensureValidDayNum(selectedDay, selectedMonth, selectedYear)
-                }
+                },
+                modifier = Modifier.weight(1f)
+            )
+            MonthPicker(
+                selectedMonth = selectedMonth,
+                itemSpacingDp = itemSpacingDp,
+                colors = colors,
+                monthNames = textStrings.monthNames,
+                textStyles = textStyles,
+                onMonthSelected = { month ->
+                    selectedMonth = month
+                    selectedDay = ensureValidDayNum(selectedDay, selectedMonth, selectedYear)
+                },
+                modifier = Modifier.weight(1f)
+            )
+            DayPicker(
+                selectedDay = selectedDay,
+                selectedMonth = selectedMonth,
+                selectedYear = selectedYear,
+                colors = colors,
+                textStyles = textStyles,
+                itemSpacingDp = itemSpacingDp,
+                minSize = 48.dp,
+                onDaySelected = { day -> selectedDay = day },
+                modifier = Modifier.weight(1f)
             )
         }
+        // when (selectedDateElement) {
+        //     DateElement.DAY -> DayPicker(
+        //         selectedDay = selectedDay,
+        //         selectedMonth = selectedMonth,
+        //         selectedYear = selectedYear,
+        //         colors = colors,
+        //         textStyles = textStyles,
+        //         minSize = 48.dp,
+        //         itemSpacingDp = itemSpacingDp,
+        //         onDayClick = { day -> selectedDay = day }
+        //     )
+//
+        //     DateElement.MONTH -> MonthPicker(
+        //         selectedMonth = selectedMonth,
+        //         itemSpacingDp = itemSpacingDp,
+        //         colors = colors,
+        //         monthNames = textStrings.monthNames,
+        //         textStyles = textStyles,
+        //         onMonthSelected = { month ->
+        //             selectedMonth = month
+        //             selectedDay = ensureValidDayNum(selectedDay, selectedMonth, selectedYear)
+        //         }
+        //     )
+//
+        //     DateElement.YEAR -> YearPicker(
+        //         selectedYear = selectedYear,
+        //         colors = colors,
+        //         textStyles = textStyles,
+        //         onYearSelected = { year ->
+        //             selectedYear = year
+        //             selectedDay = ensureValidDayNum(selectedDay, selectedMonth, selectedYear)
+        //         }
+        //     )
+        // }
     }
 }
 
@@ -184,34 +227,46 @@ private fun DayPicker(
     textStyles: ComposeDOBPickerTextStyles,
     itemSpacingDp: Dp,
     minSize: Dp,
-    onDayClick: (Int) -> Unit,
+    onDaySelected: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val numDays: Int = calculateNumDaysInMonth(selectedMonth, selectedYear)
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize),
-        content = {
-            (1 until numDays + 1).forEach { dayNum ->
-                item(key = dayNum) {
-                    SelectableTextBox(
-                        text = dayNum.toString(),
-                        textColor = colors.dateItemTextColor,
-                        boxColor = colors.dateItemBoxColor,
-                        selected = dayNum == selectedDay,
-                        selectedBoxColor = colors.dateItemSelectedBoxColor,
-                        selectedTextColor = colors.dateItemSelectedTextColor,
-                        textStyle = textStyles.dateItemTextStyle,
-                        onClick = { onDayClick(dayNum) },
-                        modifier = Modifier.aspectRatio(1f),
-                        paddingValues = PaddingValues(0.dp)
-                    )
-                }
-            }
-        },
+    ScrollSelectionList(
+        itemHeight = 56.dp,
+        items = (1..numDays).toList(),
+        selectedItem = selectedDay ?: 1,
+        getItemText = { item -> item.toString() },
+        textStyle = textStyles.yearItemTextStyle,
+        textColor = colors.dateItemTextColor,
+        selectedTextColor = colors.dateItemSelectedBoxColor,
+        onItemSelected = { _, year -> onDaySelected(year) },
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(itemSpacingDp),
-        verticalArrangement = Arrangement.spacedBy(itemSpacingDp)
+        numberOfDisplayedItems = 5
     )
+    // LazyVerticalGrid(
+    //     columns = GridCells.Adaptive(minSize),
+    //     content = {
+    //         (1 until numDays + 1).forEach { dayNum ->
+    //             item(key = dayNum) {
+    //                 SelectableTextBox(
+    //                     text = dayNum.toString(),
+    //                     textColor = colors.dateItemTextColor,
+    //                     boxColor = colors.dateItemBoxColor,
+    //                     selected = dayNum == selectedDay,
+    //                     selectedBoxColor = colors.dateItemSelectedBoxColor,
+    //                     selectedTextColor = colors.dateItemSelectedTextColor,
+    //                     textStyle = textStyles.dateItemTextStyle,
+    //                     onClick = { onDayClick(dayNum) },
+    //                     modifier = Modifier.aspectRatio(1f),
+    //                     paddingValues = PaddingValues(0.dp)
+    //                 )
+    //             }
+    //         }
+    //     },
+    //     modifier = modifier,
+    //     horizontalArrangement = Arrangement.spacedBy(itemSpacingDp),
+    //     verticalArrangement = Arrangement.spacedBy(itemSpacingDp)
+    // )
 }
 
 @Composable
@@ -221,36 +276,49 @@ private fun MonthPicker(
     colors: ComposeDOBPickerColors,
     textStyles: ComposeDOBPickerTextStyles,
     monthNames: Map<Month, String>,
-    onMonthClick: (Month) -> Unit,
+    onMonthSelected: (Month) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier) {
-        Month.values()
-            .toList()
-            .chunked(3)
-            .forEach { months ->
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    months.forEachIndexed { index, month ->
-                        val selected = month == selectedMonth
-                        SelectableTextBox(
-                            text = monthNames[month] ?: month.name,
-                            textColor = colors.dateItemTextColor,
-                            boxColor = colors.dateItemBoxColor,
-                            selected = selected,
-                            selectedTextColor = colors.dateItemSelectedTextColor,
-                            selectedBoxColor = colors.dateItemSelectedBoxColor,
-                            textStyle = textStyles.dateItemTextStyle,
-                            onClick = { onMonthClick(month) },
-                            modifier = Modifier.weight(1f)
-                        )
-                        if (index != months.lastIndex) {
-                            Spacer(modifier = Modifier.width(itemSpacingDp))
-                        }
-                    }
-                }
-                Spacer(modifier = Modifier.height(itemSpacingDp))
-            }
-    }
+    ScrollSelectionList(
+        itemHeight = 56.dp,
+        items = Month.values().toList(),
+        selectedItem = selectedMonth ?: Month.JAN,
+        textStyle = textStyles.yearItemTextStyle,
+        textColor = colors.dateItemTextColor,
+        getItemText = { item -> monthNames[item] ?: "" },
+        selectedTextColor = colors.dateItemSelectedBoxColor,
+        onItemSelected = { _, month -> onMonthSelected(month) },
+        modifier = modifier,
+        numberOfDisplayedItems = 5
+    )
+
+    // Column(modifier = modifier) {
+    //     Month.values()
+    //         .toList()
+    //         .chunked(3)
+    //         .forEach { months ->
+    //             Row(modifier = Modifier.fillMaxWidth()) {
+    //                 months.forEachIndexed { index, month ->
+    //                     val selected = month == selectedMonth
+    //                     SelectableTextBox(
+    //                         text = monthNames[month] ?: month.name,
+    //                         textColor = colors.dateItemTextColor,
+    //                         boxColor = colors.dateItemBoxColor,
+    //                         selected = selected,
+    //                         selectedTextColor = colors.dateItemSelectedTextColor,
+    //                         selectedBoxColor = colors.dateItemSelectedBoxColor,
+    //                         textStyle = textStyles.dateItemTextStyle,
+    //                         onClick = { onMonthClick(month) },
+    //                         modifier = Modifier.weight(1f)
+    //                     )
+    //                     if (index != months.lastIndex) {
+    //                         Spacer(modifier = Modifier.width(itemSpacingDp))
+    //                     }
+    //                 }
+    //             }
+    //             Spacer(modifier = Modifier.height(itemSpacingDp))
+    //         }
+    // }
 }
 
 @Composable
@@ -261,13 +329,14 @@ private fun YearPicker(
     textStyles: ComposeDOBPickerTextStyles,
     modifier: Modifier = Modifier
 ) {
-    InfiniteCircularList(
+    ScrollSelectionList(
         itemHeight = 56.dp,
-        items = (1900 .. 2023).toList(),
+        items = (1900..2023).toList(),
         selectedItem = selectedYear ?: 2000,
+        getItemText = { item -> item.toString() },
         textStyle = textStyles.yearItemTextStyle,
         textColor = colors.dateItemTextColor,
-        selectedTextColor = colors.dateItemSelectedTextColor,
+        selectedTextColor = colors.dateItemSelectedBoxColor,
         onItemSelected = { _, year -> onYearSelected(year) },
         modifier = modifier,
         numberOfDisplayedItems = 5
@@ -309,10 +378,11 @@ private fun SelectableTextBox(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun <T> InfiniteCircularList(
+fun <T> ScrollSelectionList(
     itemHeight: Dp,
     items: List<T>,
     selectedItem: T,
+    getItemText: (T) -> String,
     textStyle: TextStyle,
     textColor: Color,
     selectedTextColor: Color,
@@ -326,7 +396,7 @@ fun <T> InfiniteCircularList(
         mutableStateOf(items.indexOf(selectedItem))
     }
     val scrollState =
-        rememberLazyListState((selectedIndex - (numberOfDisplayedItems / 2) + (items.size * (Int.MAX_VALUE / 2 / items.size))))
+        rememberLazyListState(selectedIndex)
 
     LazyColumn(
         modifier = modifier
@@ -334,8 +404,11 @@ fun <T> InfiniteCircularList(
         state = scrollState,
         flingBehavior = rememberSnapFlingBehavior(lazyListState = scrollState)
     ) {
-        items(count = Int.MAX_VALUE) { index ->
-            val item = items[index % items.size]
+        items(numberOfDisplayedItems / 2) {
+            Box(modifier = Modifier.height(itemHeight))
+        }
+        items(items = items) { item ->
+            val index = items.indexOf(item)
             Box(
                 modifier = Modifier
                     .height(itemHeight)
@@ -351,9 +424,19 @@ fun <T> InfiniteCircularList(
                     },
                 contentAlignment = Alignment.Center
             ) {
+                val indexDiff = (selectedIndex - index).absoluteValue
+                val fontSize =
+                    LocalDensity.current.run {
+                        (textStyle.fontSize.toPx() - indexDiff * 6.sp.toPx()).coerceAtLeast(
+                            16.sp.toPx()
+                        ).toSp()
+                    }
+                val animatedTextStyle by animateTextStyleAsState(
+                    targetValue = textStyle.copy(fontSize = fontSize)
+                )
                 Text(
-                    text = item.toString(),
-                    style = textStyle,
+                    text = getItemText(item),
+                    style = animatedTextStyle,
                     color = if (selectedIndex == index) {
                         selectedTextColor
                     } else {
@@ -362,7 +445,38 @@ fun <T> InfiniteCircularList(
                 )
             }
         }
+        items(numberOfDisplayedItems / 2) {
+            Box(modifier = Modifier.height(itemHeight))
+        }
     }
+}
+
+@Composable
+fun animateTextStyleAsState(
+    targetValue: TextStyle,
+    animationSpec: AnimationSpec<Float> = spring(),
+    finishedListener: ((TextStyle) -> Unit)? = null
+): State<TextStyle> {
+
+    val animation = remember { Animatable(0f) }
+    var previousTextStyle by remember { mutableStateOf(targetValue) }
+    var nextTextStyle by remember { mutableStateOf(targetValue) }
+
+    val textStyleState = remember(animation.value) {
+        derivedStateOf {
+            lerp(previousTextStyle, nextTextStyle, animation.value)
+        }
+    }
+
+    LaunchedEffect(targetValue, animationSpec) {
+        previousTextStyle = textStyleState.value
+        nextTextStyle = targetValue
+        animation.snapTo(0f)
+        animation.animateTo(1f, animationSpec)
+        finishedListener?.invoke(textStyleState.value)
+    }
+
+    return textStyleState
 }
 
 private fun calculateNumDaysInMonth(selectedMonth: Month?, selectedYear: Int?): Int =
