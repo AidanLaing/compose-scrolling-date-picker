@@ -47,7 +47,7 @@ import kotlin.math.absoluteValue
 // TODO landscape mode / tablet
 // TODO code cleanup and optimization
 // TODO dialog / bottom sheet options?
-// TODO Customization (Material theming support)?
+// TODO Customization (Material theming support)? MORE COMPOSABLE
 // TODO reduce gradle dependencies, min sdk
 // TODO integration testing with CI
 // TODO README
@@ -128,8 +128,9 @@ private fun DayPicker(
         selectedItem = selectedDay ?: 1,
         getItemText = { item -> item.toString() },
         textStyle = textStyles.yearItemTextStyle,
-        textColor = colors.dateItemTextColor,
-        selectedTextColor = colors.dateItemSelectedBoxColor,
+        textColor = colors.dayUnselectedTextColor,
+        selectedTextColor = colors.daySelectedTextColor,
+        selectionBoxColor = colors.selectionBoxColor,
         onItemSelected = { year -> onDaySelected(year) },
         modifier = modifier,
         numberOfDisplayedItems = 5
@@ -150,9 +151,10 @@ private fun MonthPicker(
         items = Month.values().toList(),
         selectedItem = selectedMonth ?: Month.JAN,
         textStyle = textStyles.yearItemTextStyle,
-        textColor = colors.dateItemTextColor,
+        textColor = colors.monthUnselectedTextColor,
         getItemText = { item -> monthNames[item] ?: "" },
-        selectedTextColor = colors.dateItemSelectedBoxColor,
+        selectedTextColor = colors.monthSelectedTextColor,
+        selectionBoxColor = colors.selectionBoxColor,
         onItemSelected = { month -> onMonthSelected(month) },
         modifier = modifier,
         numberOfDisplayedItems = 5
@@ -173,8 +175,9 @@ private fun YearPicker(
         selectedItem = selectedYear ?: 2000,
         getItemText = { item -> item.toString() },
         textStyle = textStyles.yearItemTextStyle,
-        textColor = colors.dateItemTextColor,
-        selectedTextColor = colors.dateItemSelectedBoxColor,
+        textColor = colors.yearUnselectedTextColor,
+        selectedTextColor = colors.yearSelectedTextColor,
+        selectionBoxColor = colors.selectionBoxColor,
         onItemSelected = { year -> onYearSelected(year) },
         modifier = modifier,
         numberOfDisplayedItems = 5
@@ -191,11 +194,20 @@ fun <T> ScrollSelectionList(
     textStyle: TextStyle,
     textColor: Color,
     selectedTextColor: Color,
+    selectionBoxColor: Color,
     numberOfDisplayedItems: Int,
     onItemSelected: (item: T) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier.height(itemHeight * numberOfDisplayedItems)) {
+        Box(
+            modifier = Modifier
+                .padding(top = itemHeight * 2)
+                .background(color = selectionBoxColor)
+                .height(itemHeight)
+                .fillMaxWidth()
+        )
+
         val scrollState = rememberLazyListState(items.indexOf(selectedItem))
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -247,13 +259,6 @@ fun <T> ScrollSelectionList(
                 Box(modifier = Modifier.height(itemHeight))
             }
         }
-        Box(
-            modifier = Modifier
-                .padding(top = itemHeight * 2)
-                .background(color = Color.Blue.copy(alpha = 0.2f))
-                .height(itemHeight)
-                .fillMaxWidth()
-        )
     }
 }
 
@@ -317,13 +322,13 @@ enum class Month {
 
 @Immutable
 data class ComposeDOBPickerColors(
-    val selectionBoxColor: Color,
-    val yearUnselectedTextColor: Color,
-    val yearSelectedTextColor: Color,
-    val monthUnselectedTextColor: Color,
-    val monthSelectedTextColor: Color,
-    val dayUnselectedTextColor: Color,
-    val daySelectedTextColor: Color
+    val selectionBoxColor: Color = Color(0x809496A1),
+    val yearUnselectedTextColor: Color = Color(0xFFB3B5BD),
+    val yearSelectedTextColor: Color = Color(0xFF404252),
+    val monthUnselectedTextColor: Color = Color(0xFFB3B5BD),
+    val monthSelectedTextColor: Color = Color(0xFF404252),
+    val dayUnselectedTextColor: Color = Color(0xFFB3B5BD),
+    val daySelectedTextColor: Color = Color(0xFF404252)
 )
 
 @Immutable
