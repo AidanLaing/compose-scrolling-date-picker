@@ -7,18 +7,22 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -26,7 +30,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
@@ -34,20 +37,19 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.lerp
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import java.util.Calendar
 import kotlin.math.absoluteValue
 
-// TODO remove magic numbers
 // TODO code cleanup and optimization
-// TODO max and min date params
 // TODO landscape mode / tablet
-// TODO code cleanup and optimization
 // TODO dialog / bottom sheet options?
-// TODO Customization (Material theming support)? MORE COMPOSABLE
+// TODO Customization (Material theming support)?
 // TODO reduce gradle dependencies, min sdk
 // TODO integration testing with CI
 // TODO README
@@ -56,6 +58,18 @@ import kotlin.math.absoluteValue
 @Composable
 fun ComposeDOBPicker(
     modifier: Modifier = Modifier,
+    itemHeightDp: Dp = 56.dp,
+    numberOfDisplayedItems: Int = 5,
+    defaultSelectedDay: Int = 1,
+    defaultSelectedMonth: Month = Month.JAN,
+    defaultSelectedYear: Int = 2000,
+    minYear: Int = 1900,
+    maxYear: Int = Calendar.getInstance().get(Calendar.YEAR),
+    animateTextStyles: Boolean = true,
+    fontSizeDecreasePerStep: TextUnit = 2.sp,
+    minTextSize: TextUnit = 14.sp,
+    alphaDecreasePerStep: Float = 0.2f,
+    minAlpha: Float = 0.4f,
     dateElementOrder: Triple<DateElement, DateElement, DateElement> = Triple(
         DateElement.YEAR,
         DateElement.MONTH,
@@ -63,7 +77,38 @@ fun ComposeDOBPicker(
     ),
     colors: ComposeDOBPickerColors = ComposeDOBPickerColors(),
     textStyles: ComposeDOBPickerTextStyles = ComposeDOBPickerTextStyles(),
-    textStrings: ComposeDOBPickerTextStrings = ComposeDOBPickerTextStrings()
+    textStrings: ComposeDOBPickerTextStrings = ComposeDOBPickerTextStrings(),
+    selectionBackground: @Composable BoxScope.(
+        color: Color,
+        height: Dp,
+        paddingTop: Dp
+    ) -> Unit = { color, height, paddingTop ->
+        Box(
+            modifier = Modifier
+                .padding(top = paddingTop)
+                .height(height)
+                .fillMaxWidth()
+                .background(color)
+        )
+    },
+    defaultListItem: @Composable LazyItemScope.(
+        text: String,
+        style: TextStyle,
+        height: Dp
+    ) -> Unit = { text, style, height ->
+        Text(
+            text = text,
+            style = style,
+            modifier = Modifier
+                .height(height)
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            textAlign = TextAlign.Center
+        )
+    },
+    dayListItem: @Composable LazyItemScope.(text: String, style: TextStyle, height: Dp) -> Unit = defaultListItem,
+    monthListItem: @Composable LazyItemScope.(text: String, style: TextStyle, height: Dp) -> Unit = defaultListItem,
+    yearListItem: @Composable LazyItemScope.(text: String, style: TextStyle, height: Dp) -> Unit = defaultListItem
 ) {
     var selectedDay: Int? by rememberSaveable { mutableStateOf(null) }
     var selectedMonth: Month? by rememberSaveable { mutableStateOf(null) }
@@ -77,6 +122,16 @@ fun ComposeDOBPicker(
                     selectedYear = selectedYear,
                     colors = colors,
                     textStyles = textStyles,
+                    itemHeightDp = itemHeightDp,
+                    numberOfDisplayedItems = numberOfDisplayedItems,
+                    defaultSelectedDay = defaultSelectedDay,
+                    animateTextStyles = animateTextStyles,
+                    fontSizeDecreasePerStep = fontSizeDecreasePerStep,
+                    minTextSize = minTextSize,
+                    alphaDecreasePerStep = alphaDecreasePerStep,
+                    minAlpha = minAlpha,
+                    selectionBackground = selectionBackground,
+                    listItem = dayListItem,
                     onDaySelected = { day ->
                         selectedDay = ensureValidDayNum(day, selectedMonth, selectedYear)
                     },
@@ -88,6 +143,16 @@ fun ComposeDOBPicker(
                     colors = colors,
                     monthNames = textStrings.monthNames,
                     textStyles = textStyles,
+                    itemHeightDp = itemHeightDp,
+                    numberOfDisplayedItems = numberOfDisplayedItems,
+                    defaultSelectedMonth = defaultSelectedMonth,
+                    animateTextStyles = animateTextStyles,
+                    fontSizeDecreasePerStep = fontSizeDecreasePerStep,
+                    minTextSize = minTextSize,
+                    alphaDecreasePerStep = alphaDecreasePerStep,
+                    minAlpha = minAlpha,
+                    selectionBackground = selectionBackground,
+                    listItem = monthListItem,
                     onMonthSelected = { month ->
                         selectedMonth = month
                         selectedDay = ensureValidDayNum(selectedDay, month, selectedYear)
@@ -99,6 +164,18 @@ fun ComposeDOBPicker(
                     selectedYear = selectedYear,
                     colors = colors,
                     textStyles = textStyles,
+                    itemHeightDp = itemHeightDp,
+                    numberOfDisplayedItems = numberOfDisplayedItems,
+                    defaultSelectedYear = defaultSelectedYear,
+                    minYear = minYear,
+                    maxYear = maxYear,
+                    animateTextStyles = animateTextStyles,
+                    fontSizeDecreasePerStep = fontSizeDecreasePerStep,
+                    minTextSize = minTextSize,
+                    alphaDecreasePerStep = alphaDecreasePerStep,
+                    minAlpha = minAlpha,
+                    selectionBackground = selectionBackground,
+                    listItem = yearListItem,
                     onYearSelected = { year ->
                         selectedYear = year
                         selectedDay = ensureValidDayNum(selectedDay, selectedMonth, year)
@@ -107,7 +184,6 @@ fun ComposeDOBPicker(
                 )
             }
         }
-
     }
 }
 
@@ -118,22 +194,39 @@ private fun DayPicker(
     selectedYear: Int?,
     colors: ComposeDOBPickerColors,
     textStyles: ComposeDOBPickerTextStyles,
+    itemHeightDp: Dp,
+    numberOfDisplayedItems: Int,
+    defaultSelectedDay: Int,
+    animateTextStyles: Boolean,
+    fontSizeDecreasePerStep: TextUnit,
+    minTextSize: TextUnit,
+    alphaDecreasePerStep: Float,
+    minAlpha: Float,
+    selectionBackground: @Composable BoxScope.(color: Color, height: Dp, paddingTop: Dp) -> Unit,
+    listItem: @Composable LazyItemScope.(text: String, style: TextStyle, height: Dp) -> Unit,
     onDaySelected: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val numDays: Int = calculateNumDaysInMonth(selectedMonth, selectedYear)
     ScrollSelectionList(
-        itemHeight = 56.dp,
+        itemHeightDp,
         items = (1..numDays).toList(),
-        selectedItem = selectedDay ?: 1,
+        selectedItem = selectedDay ?: defaultSelectedDay,
         getItemText = { item -> item.toString() },
         textStyle = textStyles.yearItemTextStyle,
         textColor = colors.dayUnselectedTextColor,
         selectedTextColor = colors.daySelectedTextColor,
-        selectionBoxColor = colors.selectionBoxColor,
+        selectionBackgroundColor = colors.selectionBackgroundColor,
+        numberOfDisplayedItems = numberOfDisplayedItems,
+        animateTextStyles = animateTextStyles,
+        fontSizeDecreasePerStep = fontSizeDecreasePerStep,
+        minTextSize = minTextSize,
+        alphaDecreasePerStep = alphaDecreasePerStep,
+        minAlpha = minAlpha,
+        selectionBackground = selectionBackground,
+        listItem = listItem,
         onItemSelected = { year -> onDaySelected(year) },
-        modifier = modifier,
-        numberOfDisplayedItems = 5
+        modifier = modifier
     )
 }
 
@@ -143,69 +236,110 @@ private fun MonthPicker(
     colors: ComposeDOBPickerColors,
     textStyles: ComposeDOBPickerTextStyles,
     monthNames: Map<Month, String>,
+    itemHeightDp: Dp,
+    defaultSelectedMonth: Month,
+    numberOfDisplayedItems: Int,
+    animateTextStyles: Boolean,
+    fontSizeDecreasePerStep: TextUnit,
+    minTextSize: TextUnit,
+    alphaDecreasePerStep: Float,
+    minAlpha: Float,
+    selectionBackground: @Composable BoxScope.(color: Color, height: Dp, paddingTop: Dp) -> Unit,
+    listItem: @Composable LazyItemScope.(text: String, style: TextStyle, height: Dp) -> Unit,
     onMonthSelected: (Month) -> Unit,
     modifier: Modifier = Modifier
 ) {
     ScrollSelectionList(
-        itemHeight = 56.dp,
+        itemHeightDp = itemHeightDp,
         items = Month.values().toList(),
-        selectedItem = selectedMonth ?: Month.JAN,
+        selectedItem = selectedMonth ?: defaultSelectedMonth,
         textStyle = textStyles.yearItemTextStyle,
         textColor = colors.monthUnselectedTextColor,
         getItemText = { item -> monthNames[item] ?: "" },
         selectedTextColor = colors.monthSelectedTextColor,
-        selectionBoxColor = colors.selectionBoxColor,
+        selectionBackgroundColor = colors.selectionBackgroundColor,
+        numberOfDisplayedItems = numberOfDisplayedItems,
+        animateTextStyles = animateTextStyles,
+        fontSizeDecreasePerStep = fontSizeDecreasePerStep,
+        minTextSize = minTextSize,
+        alphaDecreasePerStep = alphaDecreasePerStep,
+        minAlpha = minAlpha,
+        selectionBackground = selectionBackground,
+        listItem = listItem,
         onItemSelected = { month -> onMonthSelected(month) },
-        modifier = modifier,
-        numberOfDisplayedItems = 5
+        modifier = modifier
     )
 }
 
 @Composable
 private fun YearPicker(
     selectedYear: Int?,
-    onYearSelected: (Int) -> Unit,
     colors: ComposeDOBPickerColors,
     textStyles: ComposeDOBPickerTextStyles,
+    itemHeightDp: Dp,
+    numberOfDisplayedItems: Int,
+    defaultSelectedYear: Int,
+    minYear: Int,
+    maxYear: Int,
+    animateTextStyles: Boolean,
+    fontSizeDecreasePerStep: TextUnit,
+    minTextSize: TextUnit,
+    alphaDecreasePerStep: Float,
+    minAlpha: Float,
+    selectionBackground: @Composable BoxScope.(color: Color, height: Dp, paddingTop: Dp) -> Unit,
+    listItem: @Composable LazyItemScope.(text: String, style: TextStyle, height: Dp) -> Unit,
+    onYearSelected: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     ScrollSelectionList(
-        itemHeight = 56.dp,
-        items = (1900..2023).toList(),
-        selectedItem = selectedYear ?: 2000,
+        itemHeightDp = itemHeightDp,
+        items = (minYear..maxYear).toList(),
+        selectedItem = selectedYear ?: defaultSelectedYear.coerceIn(minYear, maxYear),
         getItemText = { item -> item.toString() },
         textStyle = textStyles.yearItemTextStyle,
         textColor = colors.yearUnselectedTextColor,
         selectedTextColor = colors.yearSelectedTextColor,
-        selectionBoxColor = colors.selectionBoxColor,
+        selectionBackgroundColor = colors.selectionBackgroundColor,
+        numberOfDisplayedItems = numberOfDisplayedItems,
+        animateTextStyles = animateTextStyles,
+        fontSizeDecreasePerStep = fontSizeDecreasePerStep,
+        minTextSize = minTextSize,
+        alphaDecreasePerStep = alphaDecreasePerStep,
+        minAlpha = minAlpha,
+        selectionBackground = selectionBackground,
+        listItem = listItem,
         onItemSelected = { year -> onYearSelected(year) },
-        modifier = modifier,
-        numberOfDisplayedItems = 5
+        modifier = modifier
     )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun <T> ScrollSelectionList(
-    itemHeight: Dp,
+    itemHeightDp: Dp,
     items: List<T>,
     selectedItem: T,
     getItemText: (T) -> String,
     textStyle: TextStyle,
     textColor: Color,
     selectedTextColor: Color,
-    selectionBoxColor: Color,
+    selectionBackgroundColor: Color,
     numberOfDisplayedItems: Int,
+    animateTextStyles: Boolean,
+    fontSizeDecreasePerStep: TextUnit,
+    minTextSize: TextUnit,
+    alphaDecreasePerStep: Float,
+    minAlpha: Float,
+    selectionBackground: @Composable BoxScope.(color: Color, height: Dp, paddingTop: Dp) -> Unit,
+    listItem: @Composable LazyItemScope.(text: String, style: TextStyle, height: Dp) -> Unit,
     onItemSelected: (item: T) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Box(modifier = modifier.height(itemHeight * numberOfDisplayedItems)) {
-        Box(
-            modifier = Modifier
-                .padding(top = itemHeight * 2)
-                .background(color = selectionBoxColor)
-                .height(itemHeight)
-                .fillMaxWidth()
+    Box(modifier = modifier.height(itemHeightDp * numberOfDisplayedItems)) {
+        selectionBackground(
+            selectionBackgroundColor,
+            itemHeightDp,
+            itemHeightDp * (numberOfDisplayedItems / 2)
         )
 
         val scrollState = rememberLazyListState(items.indexOf(selectedItem))
@@ -215,51 +349,82 @@ fun <T> ScrollSelectionList(
             flingBehavior = rememberSnapFlingBehavior(lazyListState = scrollState)
         ) {
             items(numberOfDisplayedItems / 2) {
-                Box(modifier = Modifier.height(itemHeight))
+                Box(modifier = Modifier.height(itemHeightDp))
             }
             items(items = items) { item ->
                 val index = items.indexOf(item)
-                Box(
-                    modifier = Modifier
-                        .height(itemHeight)
-                        .fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    val selectedIndex by remember {
-                        derivedStateOf {
-                            scrollState.firstVisibleItemIndex.coerceIn(0, items.lastIndex)
-                                .also { index -> onItemSelected(items[index]) }
-                        }
+
+                val selectedIndex by remember {
+                    derivedStateOf {
+                        scrollState.firstVisibleItemIndex
+                            .coerceIn(0, items.lastIndex)
+                            .also { index -> onItemSelected(items[index]) }
                     }
-                    val indexCountFromSelected = (selectedIndex - index).absoluteValue
-                    val targetFontSize = LocalDensity.current.run {
-                        (textStyle.fontSize.toPx() - indexCountFromSelected * 2.sp.toPx())
-                            .coerceAtLeast(14.sp.toPx()).toSp()
-                    }
-                    val targetAlpha = (1f - indexCountFromSelected * 0.3f)
-                        .coerceAtLeast(0.4f)
+                }
+
+                val targetTextStyle = getItemTextStyle(
+                    textStyle,
+                    selectedIndex,
+                    index,
+                    fontSizeDecreasePerStep,
+                    minTextSize,
+                    alphaDecreasePerStep,
+                    minAlpha,
+                    selectedTextColor,
+                    textColor
+                )
+
+                val displayTextStyle = if (animateTextStyles) {
                     val animatedTextStyle by animateTextStyleAsState(
-                        targetValue = textStyle.copy(
-                            fontSize = targetFontSize,
-                            color = if (selectedIndex == index) {
-                                selectedTextColor
-                            } else {
-                                textColor
-                            }.copy(alpha = targetAlpha)
-                        ),
+                        targetValue = targetTextStyle,
                         animationSpec = spring()
                     )
-                    Text(
-                        text = getItemText(item),
-                        style = animatedTextStyle
-                    )
+                    animatedTextStyle
+                } else {
+                    targetTextStyle
                 }
+
+                listItem(getItemText(item), displayTextStyle, itemHeightDp)
+
             }
             items(numberOfDisplayedItems / 2) {
-                Box(modifier = Modifier.height(itemHeight))
+                Box(modifier = Modifier.height(itemHeightDp))
             }
         }
     }
+}
+
+@Composable
+@ReadOnlyComposable
+private fun getItemTextStyle(
+    baseTextStyle: TextStyle,
+    selectedIndex: Int,
+    index: Int,
+    fontSizeDecreasePerStep: TextUnit,
+    minTextSize: TextUnit,
+    alphaDecreasePerStep: Float,
+    minAlpha: Float,
+    selectedTextColor: Color,
+    textColor: Color
+): TextStyle {
+    val indexCountFromSelected = (selectedIndex - index).absoluteValue
+
+    val targetFontSize = LocalDensity.current.run {
+        (baseTextStyle.fontSize.toPx() - indexCountFromSelected * fontSizeDecreasePerStep.toPx())
+            .coerceAtLeast(minTextSize.toPx()).toSp()
+    }
+
+    val targetAlpha = (1f - indexCountFromSelected * alphaDecreasePerStep)
+        .coerceAtLeast(minAlpha)
+
+    return baseTextStyle.copy(
+        fontSize = targetFontSize,
+        color = if (selectedIndex == index) {
+            selectedTextColor
+        } else {
+            textColor
+        }.copy(alpha = targetAlpha)
+    )
 }
 
 @Composable
@@ -322,7 +487,7 @@ enum class Month {
 
 @Immutable
 data class ComposeDOBPickerColors(
-    val selectionBoxColor: Color = Color(0x809496A1),
+    val selectionBackgroundColor: Color = Color(0x809496A1),
     val yearUnselectedTextColor: Color = Color(0xFFB3B5BD),
     val yearSelectedTextColor: Color = Color(0xFF404252),
     val monthUnselectedTextColor: Color = Color(0xFFB3B5BD),
