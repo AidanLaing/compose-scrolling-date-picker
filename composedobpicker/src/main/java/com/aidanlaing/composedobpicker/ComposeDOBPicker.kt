@@ -34,7 +34,6 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import java.util.Calendar
 
-// TODO code cleanup and optimization
 // TODO expose date in better format for onDateChanged
 // TODO landscape mode / tablet
 // TODO dialog / bottom sheet options?
@@ -197,7 +196,6 @@ private fun DateElementRow(
     onYearSelected: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    println("COMPOSED ROW")
     Row(modifier = modifier) {
         dateElementList.forEach { dateElement ->
             when (dateElement) {
@@ -263,7 +261,6 @@ fun <T> ScrollSelectionList(
     onItemSelected: (item: T) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    println("COMPOSED: $items")
     Box(modifier = modifier.height(itemHeightDp * numberOfDisplayedItems)) {
         selectionBackground(
             itemHeightDp,
