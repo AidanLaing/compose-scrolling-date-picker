@@ -280,12 +280,13 @@ fun <T> ScrollSelectionList(
             derivedStateOf {
                 scrollState.firstVisibleItemIndex
                     .coerceIn(0, items.lastIndex)
+                    .also { newSelectedIndex ->
+                        if (previousSelectedIndex != newSelectedIndex) {
+                            previousSelectedIndex = newSelectedIndex
+                            onItemSelected(items[newSelectedIndex.coerceIn(0, items.lastIndex)])
+                        }
+                    }
             }
-        }
-
-        if (previousSelectedIndex != selectedIndex) {
-            previousSelectedIndex = selectedIndex
-            onItemSelected(items[selectedIndex.coerceIn(0, items.lastIndex)])
         }
 
         LazyColumn(
