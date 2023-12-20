@@ -14,16 +14,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
 import androidx.compose.ui.graphics.Color
@@ -32,7 +31,6 @@ import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
-import java.util.Calendar
 
 // TODO expose date in better format for onDateChanged
 // TODO landscape mode / tablet
@@ -45,6 +43,13 @@ import java.util.Calendar
 // TODO Android dev post
 @Composable
 fun ComposeDOBPicker(
+    defaultListItem: @Composable @UiComposable LazyItemScope.(
+        text: String,
+        heightDp: Dp,
+        isSelected: Boolean
+    ) -> Unit,
+    onDateChanged: (day: Int, month: Int, year: Int) -> Unit,
+    maxYear: Int,
     modifier: Modifier = Modifier,
     itemHeightDp: Dp = 64.dp,
     numberOfDisplayedItems: Int = 5,
@@ -52,7 +57,6 @@ fun ComposeDOBPicker(
     defaultSelectedMonth: Int = 0,
     defaultSelectedYear: Int = 2000,
     minYear: Int = 1900,
-    maxYear: Int = Calendar.getInstance().get(Calendar.YEAR),
     dateElementOrder: Triple<DateElement, DateElement, DateElement> = Triple(
         DateElement.Year,
         DateElement.Month,
@@ -87,31 +91,13 @@ fun ComposeDOBPicker(
                 .background(Color.Gray.copy(alpha = 0.2f))
         )
     },
-    defaultListItem: @Composable @UiComposable LazyItemScope.(
-        text: String,
-        heightDp: Dp,
-        isSelected: Boolean
-    ) -> Unit = { text, heightDp, _ ->
-        Box(
-            modifier = Modifier
-                .height(heightDp)
-                .fillMaxWidth()
-        ) {
-            Text(
-                text = text,
-                modifier = Modifier.align(Alignment.Center),
-                color = Color.Black
-            )
-        }
-    },
     dayListItem: @Composable @UiComposable LazyItemScope.(text: String, heightDp: Dp, isSelected: Boolean) -> Unit = defaultListItem,
     monthListItem: @Composable @UiComposable LazyItemScope.(text: String, heightDp: Dp, isSelected: Boolean) -> Unit = defaultListItem,
-    yearListItem: @Composable @UiComposable LazyItemScope.(text: String, heightDp: Dp, isSelected: Boolean) -> Unit = defaultListItem,
-    onDateChanged: (day: Int, month: Int, year: Int) -> Unit = { _, _, _ -> }
+    yearListItem: @Composable @UiComposable LazyItemScope.(text: String, heightDp: Dp, isSelected: Boolean) -> Unit = defaultListItem
 ) {
-    var selectedDay: Int by rememberSaveable { mutableStateOf(defaultSelectedDay) }
-    var selectedMonth: Int by rememberSaveable { mutableStateOf(defaultSelectedMonth) }
-    var selectedYear: Int by rememberSaveable { mutableStateOf(defaultSelectedYear) }
+    var selectedDay: Int by rememberSaveable { mutableIntStateOf(defaultSelectedDay) }
+    var selectedMonth: Int by rememberSaveable { mutableIntStateOf(defaultSelectedMonth) }
+    var selectedYear: Int by rememberSaveable { mutableIntStateOf(defaultSelectedYear) }
 
     val numDays: Int by remember {
         derivedStateOf {
