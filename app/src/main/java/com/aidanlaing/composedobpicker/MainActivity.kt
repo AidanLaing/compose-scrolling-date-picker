@@ -31,7 +31,7 @@ class MainActivity : ComponentActivity() {
                         .fillMaxWidth(),
                     onDateChanged = { day, month, year ->
                         updateCount += 1
-                        dateText = "${month.name} $day, $year Updated: $updateCount"
+                        dateText = "$month $day, $year Updated: $updateCount"
                     }
                 )
 
