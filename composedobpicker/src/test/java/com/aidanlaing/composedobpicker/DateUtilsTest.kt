@@ -1,6 +1,7 @@
 package com.aidanlaing.composedobpicker
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -32,7 +33,7 @@ class DateUtilsTest {
     }
 
     @Test
-    fun calculateNumDaysInFebruaryNonLeapYearDivisibleBy100() {
+    fun calculateNumDaysInFebruaryNonLeapYearDivisibleBy100ButNot400() {
         val numDays = calculateNumDaysInMonth(1, 1900)
         assertEquals(28, numDays)
     }
@@ -105,5 +106,37 @@ class DateUtilsTest {
         val numDaysList = (1900..2000).map { year -> calculateNumDaysInMonth(11, year) }
         val allEqual31 = numDaysList.all { numDays -> numDays == 31 }
         assertTrue(allEqual31)
+    }
+
+    @Test
+    fun calculateIsLeapYearNotRegularLeapYear() {
+        assertFalse(calculateIsLeapYear(1995))
+    }
+
+    @Test
+    fun calculateIsLeapYearIsRegularLeapYear() {
+        assertTrue(calculateIsLeapYear(1992))
+    }
+
+    @Test
+    fun calculateIsLeapYearIsLeapYearDivisibleBy400() {
+        assertTrue(calculateIsLeapYear(2000))
+    }
+
+    @Test
+    fun calculateIsLeapYearNotLeapYearDivisibleBy100ButNot400() {
+        assertFalse(calculateIsLeapYear(1900))
+    }
+
+    @Test
+    fun ensureValidDayNumForInvalidDate() {
+        val validatedDayNum = ensureValidDayNum(30, 1, 1998)
+        assertEquals(28, validatedDayNum)
+    }
+
+    @Test
+    fun ensureValidDayNumForValidDate() {
+        val validatedDayNum = ensureValidDayNum(29, 1, 1988)
+        assertEquals(29, validatedDayNum)
     }
 }
