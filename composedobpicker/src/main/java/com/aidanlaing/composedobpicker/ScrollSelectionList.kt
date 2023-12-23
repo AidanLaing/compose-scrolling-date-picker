@@ -52,7 +52,7 @@ internal fun <T> ScrollSelectionList(
                     .also { newSelectedIndex ->
                         if (previousSelectedIndex != newSelectedIndex) {
                             previousSelectedIndex = newSelectedIndex
-                            onItemSelected(items[newSelectedIndex.coerceIn(0, items.lastIndex)])
+                            onItemSelected(items[newSelectedIndex])
                         }
                     }
             }
