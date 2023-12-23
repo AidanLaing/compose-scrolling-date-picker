@@ -1,8 +1,5 @@
 package com.aidanlaing.composedobpicker
 
-import androidx.compose.ui.text.capitalize
-import androidx.compose.ui.text.intl.Locale
-
 data class DateOfBirth(val day: Int, val month: Int, val year: Int) {
 
     fun monthAsEnumType(): Month = Month.values()[month]
@@ -23,19 +20,21 @@ data class DateOfBirth(val day: Int, val month: Int, val year: Int) {
         monthNames: List<String> = Month.values().map { month -> month.name }.toList(),
         padChar: Char = '0',
         padLength: Int = 2,
-        shortenedMonthLength: Int = 3,
-        locale: Locale = Locale.current
+        shortenedMonthLength: Int = 3
     ): String = pattern
         .replace("yyyy", year.toString())
         .replace("dd", day.toString().padStart(length = padLength, padChar = padChar))
         .replace("d", day.toString())
         .replace("z", getDayPostFix())
-        .replace("mmmm", monthNames[month].uppercase())
-        .replace("mmm", monthNames[month].take(shortenedMonthLength).uppercase())
-        .replace("mm", (month + 1).toString().padStart(length = padLength, padChar = padChar))
-        .replace("m", (month + 1).toString())
-        .lowercase()
-        .capitalize(locale = locale)
+        .let { text ->
+            if (text.count { letter -> letter == 'm' } > 2) {
+                text.replace("mmmm", monthNames[month])
+                    .replace("mmm", monthNames[month].take(shortenedMonthLength))
+            } else {
+                text.replace("mm", (month + 1).toString().padStart(length = padLength, padChar = padChar))
+                    .replace("m", (month + 1).toString())
+            }
+        }
 
     private fun getDayPostFix(): String {
         val dayString = day.toString()
