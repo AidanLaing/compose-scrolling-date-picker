@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
             Column(modifier = Modifier.background(color = Color.White)) {
                 var dateOfBirth: DateOfBirth? by remember { mutableStateOf(null) }
 
-                ComposeDOBPicker(
+                DateOfBirthPicker(
                     defaultListItem = { text, heightDp, _ ->
                         Box(
                             modifier = Modifier
@@ -43,7 +43,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     },
-                    onDateOfBirthChanged = { dob -> dateOfBirth = dob },
+                    dateOfBirthChanged = { newDateOfBirth -> dateOfBirth = newDateOfBirth },
                     maxYear = Calendar.getInstance().get(Calendar.YEAR),
                     modifier = Modifier.fillMaxWidth()
                 )
