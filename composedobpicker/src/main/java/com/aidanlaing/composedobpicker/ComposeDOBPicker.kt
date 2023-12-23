@@ -15,7 +15,6 @@ import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -24,15 +23,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.UiComposable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.capitalize
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toPersistentList
 
-// TODO expose date in better format for onDateChanged
 // TODO landscape mode / tablet
 // TODO dialog / bottom sheet options?
 // TODO Customization (Material theming support)?
@@ -43,43 +42,30 @@ import kotlinx.collections.immutable.toImmutableList
 // TODO Android dev post
 @Composable
 fun ComposeDOBPicker(
-    defaultListItem: @Composable @UiComposable LazyItemScope.(
+    defaultListItem: @Composable LazyItemScope.(
         text: String,
         heightDp: Dp,
         isSelected: Boolean
     ) -> Unit,
-    onDateChanged: (day: Int, month: Int, year: Int) -> Unit,
+    onDateOfBirthChanged: (dateOfBirth: DateOfBirth) -> Unit,
     maxYear: Int,
     modifier: Modifier = Modifier,
-    itemHeightDp: Dp = 64.dp,
+    itemHeightDp: Dp = 56.dp,
     numberOfDisplayedItems: Int = 5,
     defaultSelectedDay: Int = 1,
     defaultSelectedMonth: Int = 0,
     defaultSelectedYear: Int = 2000,
     minYear: Int = 1900,
-    dateElementOrder: Triple<DateElement, DateElement, DateElement> = Triple(
-        DateElement.Year,
-        DateElement.Month,
-        DateElement.Day
+    dateOfBirthElementOrder: Triple<DateOfBirthElement, DateOfBirthElement, DateOfBirthElement> = Triple(
+        DateOfBirthElement.Year,
+        DateOfBirthElement.Month,
+        DateOfBirthElement.Day
     ),
-    monthNames: List<String> = persistentListOf(
-        "January",
-        "February",
-        "March",
-        "April",
-        "May",
-        "June",
-        "July",
-        "August",
-        "September",
-        "October",
-        "November",
-        "December"
-    ),
-    getDayText: (day: Int) -> String = remember { { day -> day.toString() } },
-    getMonthText: (month: Int) -> String = remember { { month -> monthNames[month] } },
-    getYearText: (year: Int) -> String = remember { { year -> year.toString() } },
-    selectionBackground: @Composable @UiComposable BoxScope.(
+    monthNames: List<String> = Month.values().map { month -> month.name }.toPersistentList(),
+    getDayText: (day: Int) -> String = { day -> day.toString() },
+    getMonthText: (month: Int) -> String = { month -> monthNames[month] },
+    getYearText: (year: Int) -> String = { year -> year.toString() },
+    selectionBackground: @Composable BoxScope.(
         heightDp: Dp,
         paddingTopDp: Dp
     ) -> Unit = { heightDp, paddingTopDp ->
@@ -91,9 +77,9 @@ fun ComposeDOBPicker(
                 .background(Color.Gray.copy(alpha = 0.2f))
         )
     },
-    dayListItem: @Composable @UiComposable LazyItemScope.(text: String, heightDp: Dp, isSelected: Boolean) -> Unit = defaultListItem,
-    monthListItem: @Composable @UiComposable LazyItemScope.(text: String, heightDp: Dp, isSelected: Boolean) -> Unit = defaultListItem,
-    yearListItem: @Composable @UiComposable LazyItemScope.(text: String, heightDp: Dp, isSelected: Boolean) -> Unit = defaultListItem
+    dayListItem: @Composable LazyItemScope.(text: String, heightDp: Dp, isSelected: Boolean) -> Unit = defaultListItem,
+    monthListItem: @Composable LazyItemScope.(text: String, heightDp: Dp, isSelected: Boolean) -> Unit = defaultListItem,
+    yearListItem: @Composable LazyItemScope.(text: String, heightDp: Dp, isSelected: Boolean) -> Unit = defaultListItem
 ) {
     var selectedDay: Int by rememberSaveable { mutableIntStateOf(defaultSelectedDay) }
     var selectedMonth: Int by rememberSaveable { mutableIntStateOf(defaultSelectedMonth) }
@@ -105,37 +91,41 @@ fun ComposeDOBPicker(
         }
     }
 
-    val dateElementList: ImmutableList<DateElement> =
-        remember { dateElementOrder.toList().toImmutableList() }
+    val dateOfBirthElementList: ImmutableList<DateOfBirthElement> =
+        remember { dateOfBirthElementOrder.toList().toImmutableList() }
+
+    val onGetDayText: (day: Int) -> String = remember { getDayText }
+    val onGetMonthText: (month: Int) -> String = remember { getMonthText }
+    val onGetYearText: (year: Int) -> String = remember { getYearText }
 
     val onDaySelected: (newSelectedDay: Int) -> Unit = remember {
         { newSelectedDay ->
             val validatedDay = ensureValidDayNum(newSelectedDay, selectedMonth, selectedYear)
             selectedDay = validatedDay
-            onDateChanged(validatedDay, selectedMonth, selectedYear)
+            onDateOfBirthChanged(DateOfBirth(validatedDay, selectedMonth, selectedYear))
         }
     }
 
     val onMonthSelected: (newSelectedMonth: Int) -> Unit = remember {
         { newSelectedMonth ->
             val validatedDay = ensureValidDayNum(selectedDay, newSelectedMonth, selectedYear)
-            selectedMonth = newSelectedMonth
             selectedDay = validatedDay
-            onDateChanged(validatedDay, newSelectedMonth, selectedYear)
+            selectedMonth = newSelectedMonth
+            onDateOfBirthChanged(DateOfBirth(validatedDay, newSelectedMonth, selectedYear))
         }
     }
 
     val onYearSelected: (newSelectedYear: Int) -> Unit = remember {
         { newSelectedYear ->
             val validatedDay = ensureValidDayNum(selectedDay, selectedMonth, newSelectedYear)
-            selectedYear = newSelectedYear
             selectedDay = validatedDay
-            onDateChanged(validatedDay, selectedMonth, newSelectedYear)
+            selectedYear = newSelectedYear
+            onDateOfBirthChanged(DateOfBirth(validatedDay, selectedMonth, newSelectedYear))
         }
     }
 
     DateElementRow(
-        dateElementList = dateElementList,
+        dateOfBirthElementList = dateOfBirthElementList,
         itemHeightDp = itemHeightDp,
         numberOfDisplayedItems = numberOfDisplayedItems,
         numDays = numDays,
@@ -144,9 +134,9 @@ fun ComposeDOBPicker(
         defaultSelectedDay = defaultSelectedDay,
         defaultSelectedMonth = defaultSelectedMonth,
         defaultSelectedYear = defaultSelectedYear,
-        getDayText = getDayText,
-        getMonthText = getMonthText,
-        getYearText = getYearText,
+        getDayText = onGetDayText,
+        getMonthText = onGetMonthText,
+        getYearText = onGetYearText,
         dayListItem = dayListItem,
         monthListItem = monthListItem,
         yearListItem = yearListItem,
@@ -156,12 +146,11 @@ fun ComposeDOBPicker(
         onYearSelected = onYearSelected,
         modifier = modifier
     )
-
 }
 
 @Composable
 private fun DateElementRow(
-    dateElementList: ImmutableList<DateElement>,
+    dateOfBirthElementList: ImmutableList<DateOfBirthElement>,
     itemHeightDp: Dp,
     numberOfDisplayedItems: Int,
     numDays: Int,
@@ -183,9 +172,9 @@ private fun DateElementRow(
     modifier: Modifier = Modifier
 ) {
     Row(modifier = modifier) {
-        dateElementList.forEach { dateElement ->
+        dateOfBirthElementList.forEach { dateElement ->
             when (dateElement) {
-                DateElement.Day -> {
+                DateOfBirthElement.Day -> {
                     val dayItems: ImmutableList<Int> = (1..numDays).toImmutableList()
                     ScrollSelectionList(
                         items = dayItems,
@@ -200,7 +189,7 @@ private fun DateElementRow(
                     )
                 }
 
-                DateElement.Month -> {
+                DateOfBirthElement.Month -> {
                     val monthItems: ImmutableList<Int> = (0..11).toImmutableList()
                     ScrollSelectionList(
                         items = monthItems,
@@ -215,7 +204,7 @@ private fun DateElementRow(
                     )
                 }
 
-                DateElement.Year -> {
+                DateOfBirthElement.Year -> {
                     val yearItems: ImmutableList<Int> = (minYear..maxYear).toImmutableList()
                     ScrollSelectionList(
                         items = yearItems,
@@ -323,10 +312,53 @@ internal fun ensureValidDayNum(
     return selectedDay
 }
 
+enum class DateOfBirthElement {
+    Day, Month, Year
+}
 
-@Stable
-sealed class DateElement {
-    object Year : DateElement()
-    object Month : DateElement()
-    object Day : DateElement()
+enum class Month { January, February, March, April, May, June, July, August, September, October, November, December }
+
+data class DateOfBirth(val day: Int, val month: Int, val year: Int) {
+
+    fun monthAsEnumType(): Month = Month.values()[month]
+
+    /**
+     * Supported patterns
+     * Day:     dd      -   numeric day padded length
+     *          d       -   numeric day not padded
+     *          z       -   day postfix (st, nd, rd, th)
+     * Month:   mmmm    -   text month full length
+     *          mmm     -   text month shortened length
+     *          mm      -   numeric month padded length
+     *          m       -   numeric month not padded
+     * Year:    yyyy    -   numeric year full length
+     */
+    fun asText(
+        pattern: String = "mmmm dz, yyyy",
+        monthNames: List<String> = Month.values().map { month -> month.name }.toList(),
+        padChar: Char = '0',
+        padLength: Int = 2,
+        shortenedMonthLength: Int = 3,
+        locale: Locale = Locale.current
+    ): String = pattern
+        .replace("yyyy", year.toString())
+        .replace("dd", day.toString().padStart(length = padLength, padChar = padChar))
+        .replace("d", day.toString())
+        .replace("z", getDayPostFix())
+        .replace("mmmm", monthNames[month].uppercase())
+        .replace("mmm", monthNames[month].take(shortenedMonthLength).uppercase())
+        .replace("mm", (month + 1).toString().padStart(length = padLength, padChar = padChar))
+        .replace("m", (month + 1).toString())
+        .lowercase()
+        .capitalize(locale = locale)
+
+    private fun getDayPostFix(): String {
+        val dayString = day.toString()
+        return when {
+            dayString.endsWith("1") && day != 11 -> "st"
+            dayString.endsWith("2") && day != 12 -> "nd"
+            dayString.endsWith("3") && day != 13 -> "rd"
+            else -> "th"
+        }
+    }
 }
