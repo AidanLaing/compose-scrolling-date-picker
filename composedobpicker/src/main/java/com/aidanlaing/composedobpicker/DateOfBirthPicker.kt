@@ -47,11 +47,12 @@ fun DateOfBirthPicker(
     defaultSelectedMonth: Int = 0,
     defaultSelectedYear: Int = 2000,
     minYear: Int = 1900,
-    dateOfBirthElementOrder: Triple<DateOfBirthElement, DateOfBirthElement, DateOfBirthElement> = Triple(
-        DateOfBirthElement.Year,
-        DateOfBirthElement.Month,
-        DateOfBirthElement.Day
-    ),
+    dateOfBirthElementOrder: Triple<DateOfBirthElement, DateOfBirthElement, DateOfBirthElement> =
+        Triple(
+            DateOfBirthElement.Year,
+            DateOfBirthElement.Month,
+            DateOfBirthElement.Day
+        ),
     monthNames: List<String> = Month.values().map { month -> month.name }.toPersistentList(),
     getDayText: (day: Int) -> String = { day -> day.toString() },
     getMonthText: (month: Int) -> String = { month -> monthNames[month] },
