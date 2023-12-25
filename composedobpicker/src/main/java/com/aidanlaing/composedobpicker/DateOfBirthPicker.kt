@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -76,12 +75,7 @@ fun DateOfBirthPicker(
     var selectedDay: Int by rememberSaveable { mutableIntStateOf(defaultSelectedDay) }
     var selectedMonth: Int by rememberSaveable { mutableIntStateOf(defaultSelectedMonth) }
     var selectedYear: Int by rememberSaveable { mutableIntStateOf(defaultSelectedYear) }
-
-    val numDays: Int by remember {
-        derivedStateOf {
-            calculateNumDaysInMonth(selectedMonth, selectedYear)
-        }
-    }
+    var numDays: Int by rememberSaveable { mutableIntStateOf(calculateNumDaysInMonth(selectedMonth, selectedYear)) }
 
     val dateOfBirthElementList: ImmutableList<DateOfBirthElement> =
         remember { dateOfBirthElementOrder.toList().toImmutableList() }
@@ -103,6 +97,7 @@ fun DateOfBirthPicker(
             val validatedDay = ensureValidDayNum(selectedDay, newSelectedMonth, selectedYear)
             selectedDay = validatedDay
             selectedMonth = newSelectedMonth
+            numDays = calculateNumDaysInMonth(newSelectedMonth, selectedYear)
             dateOfBirthChanged(DateOfBirth(validatedDay, newSelectedMonth, selectedYear))
         }
     }
@@ -112,6 +107,7 @@ fun DateOfBirthPicker(
             val validatedDay = ensureValidDayNum(selectedDay, selectedMonth, newSelectedYear)
             selectedDay = validatedDay
             selectedYear = newSelectedYear
+            numDays = calculateNumDaysInMonth(selectedMonth, newSelectedYear)
             dateOfBirthChanged(DateOfBirth(validatedDay, selectedMonth, newSelectedYear))
         }
     }

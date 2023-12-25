@@ -18,12 +18,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
-import kotlinx.collections.immutable.ImmutableList
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-internal fun <T> ScrollSelectionList(
-    items: ImmutableList<T>,
+fun <T> ScrollSelectionList(
+    items: List<T>,
     itemHeightDp: Dp,
     defaultSelectedItem: T,
     numberOfDisplayedItems: Int,
