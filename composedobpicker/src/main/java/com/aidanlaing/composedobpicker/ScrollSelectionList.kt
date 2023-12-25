@@ -17,6 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Dp
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -30,7 +31,8 @@ fun <T> ScrollSelectionList(
     selectionBackground: @Composable BoxScope.(heightDp: Dp, paddingTopDp: Dp) -> Unit,
     listItem: @Composable LazyItemScope.(text: String, heightDp: Dp, isSelected: Boolean) -> Unit,
     onItemSelected: (item: T) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    lazyColumnTestTag: String = "lazy_column_test_tag"
 ) {
     Box(modifier = modifier.height(itemHeightDp * numberOfDisplayedItems)) {
         selectionBackground(
@@ -58,7 +60,9 @@ fun <T> ScrollSelectionList(
         }
 
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .testTag(lazyColumnTestTag),
             state = scrollState,
             flingBehavior = rememberSnapFlingBehavior(lazyListState = scrollState)
         ) {

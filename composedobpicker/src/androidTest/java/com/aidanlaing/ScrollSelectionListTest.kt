@@ -1,0 +1,98 @@
+package com.aidanlaing
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performScrollToIndex
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import com.aidanlaing.composedobpicker.ScrollSelectionList
+import kotlinx.collections.immutable.toPersistentList
+import org.junit.Assert.assertTrue
+import org.junit.Rule
+import org.junit.Test
+
+class ScrollSelectionListTest {
+
+    @get:Rule
+    val composeTestRule = createComposeRule()
+
+    @Test
+    fun scrollSelectionListScrollMidway() {
+        ScrollSelectionListRobot(composeTestRule = composeTestRule, numItems = 30, defaultSelectedItem = 0)
+            .itemWithTagIsDisplayed("0")
+            .scrollToIndex(20)
+            .itemWithTagIsDisplayed("20")
+            .assertSelectedItems { items -> items.first() == 0 }
+            .assertSelectedItems { items -> items.last() == 20 }
+    }
+
+    private class ScrollSelectionListRobot(
+        private val composeTestRule: ComposeContentTestRule,
+        private val numItems: Int,
+        private val defaultSelectedItem: Int,
+        private val selectedItems: MutableList<Int> = mutableListOf()
+    ) {
+
+        init {
+            composeTestRule.setContent {
+                ScrollSelectionList(
+                    items = (0..numItems).toPersistentList(),
+                    itemHeightDp = 56.dp,
+                    defaultSelectedItem = defaultSelectedItem,
+                    numberOfDisplayedItems = 5,
+                    getItemText = { item -> item.toString() },
+                    selectionBackground = { heightDp: Dp, paddingTopDp: Dp ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(heightDp)
+                                .background(color = Color.Black.copy(alpha = 0.1f))
+                                .padding(top = paddingTopDp)
+                        )
+                    },
+                    listItem = { text: String, heightDp: Dp, _ ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(heightDp)
+                                .background(color = listOf(Color.Red, Color.Yellow, Color.Green, Color.Blue).random())
+                                .testTag(text)
+                        )
+                    },
+                    onItemSelected = { item -> selectedItems += item },
+                    modifier = Modifier.fillMaxWidth(),
+                    lazyColumnTestTag = LAZY_COLUMN_TEST_TAG
+                )
+            }
+        }
+
+        fun itemWithTagIsDisplayed(tag: String): ScrollSelectionListRobot {
+            composeTestRule.onNodeWithTag(tag).assertIsDisplayed()
+            return this@ScrollSelectionListRobot
+        }
+
+        fun scrollToIndex(index: Int): ScrollSelectionListRobot {
+            composeTestRule.onNodeWithTag(LAZY_COLUMN_TEST_TAG).performScrollToIndex(index)
+            return this@ScrollSelectionListRobot
+        }
+
+        fun assertSelectedItems(condition: (items: List<Int>) -> Boolean): ScrollSelectionListRobot {
+            assertTrue(condition(selectedItems))
+            return this@ScrollSelectionListRobot
+        }
+    }
+
+    companion object {
+        private const val LAZY_COLUMN_TEST_TAG = "lazy_column_test_tag"
+    }
+}
