@@ -25,12 +25,37 @@ class DateOfBirthPickerTest {
     val composeTestRule = createComposeRule()
 
     @Test
-    fun scrollSelectionListCorrectNumberOfItemsDisplayed() {
+    fun dateOfBirthPickerInitialState() {
         DateOfBirthRobot(composeTestRule = composeTestRule)
             .itemWithTagIsDisplayed("2000")
             .itemWithTagIsDisplayed("January")
             .itemWithTagIsDisplayed("1")
             .assertSelectedItems { items -> items.last() == DateOfBirth(1, 0, 2000) }
+    }
+
+    @Test
+    fun dateOfBirthPickerLeapYearFeb29thSelection() {
+        DateOfBirthRobot(composeTestRule = composeTestRule)
+            .scrollToIndex(96, "year_lazy_column_test_tag")
+            .scrollToIndex(1, "month_lazy_column_test_tag")
+            .scrollToIndex(28, "day_lazy_column_test_tag")
+            .itemWithTagIsDisplayed("1996")
+            .itemWithTagIsDisplayed("February")
+            .itemWithTagIsDisplayed("29")
+            .assertSelectedItems { items -> items.last() == DateOfBirth(29, 1, 1996) }
+    }
+
+    @Test
+    fun dateOfBirthPickerMarch31ToFeb28NotLeapYear() {
+        DateOfBirthRobot(composeTestRule = composeTestRule)
+            .scrollToIndex(95, "year_lazy_column_test_tag")
+            .scrollToIndex(2, "month_lazy_column_test_tag")
+            .scrollToIndex(30, "day_lazy_column_test_tag")
+            .scrollToIndex(1, "month_lazy_column_test_tag")
+            .itemWithTagIsDisplayed("1995")
+            .itemWithTagIsDisplayed("February")
+            .itemWithTagIsDisplayed("28")
+            .assertSelectedItems { items -> items.last() == DateOfBirth(28, 1, 1995) }
     }
 
     private class DateOfBirthRobot(
@@ -42,11 +67,6 @@ class DateOfBirthPickerTest {
             composeTestRule.setContent {
                 TestDateOfBirthPicker()
             }
-        }
-
-        fun itemWithTagDoesNotExist(tag: String): DateOfBirthRobot {
-            composeTestRule.onNodeWithTag(tag).assertDoesNotExist()
-            return this@DateOfBirthRobot
         }
 
         fun itemWithTagIsDisplayed(tag: String): DateOfBirthRobot {
