@@ -173,7 +173,8 @@ private fun DateElementRow(
                         selectionBackground = selectionBackground,
                         listItem = dayListItem,
                         onItemSelected = onDaySelected,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        lazyColumnTestTag = "day_lazy_column_test_tag"
                     )
                 }
 
@@ -188,7 +189,8 @@ private fun DateElementRow(
                         selectionBackground = selectionBackground,
                         listItem = monthListItem,
                         onItemSelected = onMonthSelected,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        lazyColumnTestTag = "month_lazy_column_test_tag"
                     )
                 }
 
@@ -203,7 +205,8 @@ private fun DateElementRow(
                         selectionBackground = selectionBackground,
                         listItem = yearListItem,
                         onItemSelected = onYearSelected,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        lazyColumnTestTag = "year_lazy_column_test_tag"
                     )
                 }
             }
