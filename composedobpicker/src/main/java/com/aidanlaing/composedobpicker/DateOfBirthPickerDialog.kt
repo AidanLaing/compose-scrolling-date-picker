@@ -23,7 +23,7 @@ fun DateOfBirthPickerDialog(
     dateOfBirthPickerUi: DateOfBirthPickerUi,
     maxYear: Int,
     backgroundColor: Color,
-    buttonFooter: @Composable ColumnScope.(onConfirmClick: () -> Unit, onDismissClick: () -> Unit) -> Unit,
+    buttonFooterContent: @Composable ColumnScope.(onConfirmClick: () -> Unit, onDismissClick: () -> Unit) -> Unit,
     onDateConfirmed: (DateOfBirth?) -> Unit,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
@@ -31,7 +31,7 @@ fun DateOfBirthPickerDialog(
     dialogProperties: DialogProperties = DialogProperties(),
     backgroundShape: Shape = RoundedCornerShape(16.dp),
     horizontalAlignment: Alignment.Horizontal = Alignment.End,
-    header: (@Composable ColumnScope.() -> Unit)? = null,
+    headerContent: (@Composable ColumnScope.() -> Unit)? = null,
     dateOfBirthChanged: ((DateOfBirth) -> Unit)? = null
 ) {
     Dialog(onDismissRequest = onDismissRequest, properties = dialogProperties) {
@@ -41,7 +41,7 @@ fun DateOfBirthPickerDialog(
                 .background(color = backgroundColor, shape = backgroundShape),
             horizontalAlignment = horizontalAlignment
         ) {
-            header?.invoke(this)
+            headerContent?.invoke(this)
 
             var dateOfBirth: DateOfBirth? by remember { mutableStateOf(null) }
             DateOfBirthPicker(
@@ -55,7 +55,7 @@ fun DateOfBirthPickerDialog(
                 properties = dateOfBirthPickerProperties
             )
 
-            buttonFooter(
+            buttonFooterContent(
                 {
                     onDateConfirmed(dateOfBirth)
                     onDismissRequest()

@@ -14,9 +14,6 @@ import androidx.compose.ui.unit.Dp
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 
-// TODO landscape mode / tablet
-// TODO dialog / bottom sheet options?
-// TODO Customization (Material theming support)?
 // TODO reduce gradle dependencies, min sdk
 // TODO integration testing with CI
 // TODO README

@@ -81,7 +81,7 @@ class MainActivity : ComponentActivity() {
                             }
                         ),
                         maxYear = Calendar.getInstance().get(Calendar.YEAR),
-                        buttonFooter = { onConfirmClick, onDismissClick ->
+                        buttonFooterContent = { onConfirmClick, onDismissClick ->
                             Divider()
                             Row(modifier = Modifier.padding(end = 16.dp, top = 8.dp, bottom = 8.dp)) {
                                 TextButton(onClick = onDismissClick, modifier = Modifier.padding(end = 8.dp)) {
