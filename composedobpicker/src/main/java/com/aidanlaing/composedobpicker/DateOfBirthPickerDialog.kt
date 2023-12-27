@@ -31,7 +31,8 @@ fun DateOfBirthPickerDialog(
     dialogProperties: DialogProperties = DialogProperties(),
     backgroundShape: Shape = RoundedCornerShape(16.dp),
     horizontalAlignment: Alignment.Horizontal = Alignment.End,
-    header: (@Composable ColumnScope.() -> Unit)? = null
+    header: (@Composable ColumnScope.() -> Unit)? = null,
+    dateOfBirthChanged: ((DateOfBirth) -> Unit)? = null
 ) {
     Dialog(onDismissRequest = onDismissRequest, properties = dialogProperties) {
         Column(
@@ -46,7 +47,10 @@ fun DateOfBirthPickerDialog(
             DateOfBirthPicker(
                 dateOfBirthPickerUi = dateOfBirthPickerUi,
                 maxYear = maxYear,
-                dateOfBirthChanged = { newDateOfBirth -> dateOfBirth = newDateOfBirth },
+                dateOfBirthChanged = { newDateOfBirth ->
+                    dateOfBirth = newDateOfBirth
+                    dateOfBirthChanged?.invoke(newDateOfBirth)
+                },
                 modifier = Modifier.fillMaxWidth(),
                 properties = dateOfBirthPickerProperties
             )
