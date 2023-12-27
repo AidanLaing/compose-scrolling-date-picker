@@ -15,6 +15,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performScrollToIndex
 import com.aidanlaing.composedobpicker.DateOfBirth
 import com.aidanlaing.composedobpicker.DateOfBirthPicker
+import com.aidanlaing.composedobpicker.DateOfBirthPickerUi
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
@@ -88,19 +89,21 @@ class DateOfBirthPickerTest {
         @Suppress("TestFunctionName")
         private fun TestDateOfBirthPicker() {
             DateOfBirthPicker(
-                defaultListItem = { text, heightDp, _ ->
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(heightDp)
-                            .background(color = listOf(Color.Red, Color.Yellow, Color.Green, Color.Blue).random())
-                            .testTag(text)
-                    )
-                },
+                dateOfBirthPickerUi = DateOfBirthPickerUi.Unified(
+                    listItem = { text, heightDp, _ ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(heightDp)
+                                .background(color = listOf(Color.Red, Color.Yellow, Color.Green, Color.Blue).random())
+                                .testTag(text)
+                        )
+                    }
+                ),
+                maxYear = 2023,
                 dateOfBirthChanged = { dateOfBirth ->
                     selectedDateOfBirthItems += dateOfBirth
-                },
-                maxYear = 2023
+                }
             )
         }
     }

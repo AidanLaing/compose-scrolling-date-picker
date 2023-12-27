@@ -114,7 +114,7 @@ class ScrollSelectionListTest {
                 defaultSelectedItem = defaultSelectedItem,
                 numberOfDisplayedItems = numberOfDisplayedItems,
                 getItemText = { item -> item.toString() },
-                selectionBackground = { heightDp: Dp, paddingTopDp: Dp ->
+                selectedItemBackground = { heightDp: Dp, paddingTopDp: Dp ->
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
