@@ -44,6 +44,7 @@ fun DateOfBirthPicker(
         { newSelectedDay ->
             val validatedDay = ensureValidDayNum(newSelectedDay, selectedMonth, selectedYear)
             selectedDay = validatedDay
+            numDays = calculateNumDaysInMonth(selectedMonth, selectedYear)
             dateOfBirthChanged(DateOfBirth(validatedDay, selectedMonth, selectedYear))
         }
     }

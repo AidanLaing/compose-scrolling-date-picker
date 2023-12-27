@@ -51,7 +51,7 @@ fun <T> ScrollSelectionList(
                 scrollState.firstVisibleItemIndex
                     .coerceIn(0, items.lastIndex)
                     .also { newSelectedIndex ->
-                        if (previousSelectedIndex != newSelectedIndex) {
+                        if (previousSelectedIndex != newSelectedIndex && scrollState.isScrollInProgress.not()) {
                             previousSelectedIndex = newSelectedIndex
                             onItemSelected(items[newSelectedIndex])
                         }
