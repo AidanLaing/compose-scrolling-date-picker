@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,6 +45,10 @@ fun <T> ScrollSelectionList(
 
         var previousSelectedIndex: Int? by remember {
             mutableStateOf(null)
+        }
+
+        LaunchedEffect(items.size) {
+            previousSelectedIndex = null
         }
 
         val selectedIndex by remember {

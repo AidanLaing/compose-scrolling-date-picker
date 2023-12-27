@@ -104,6 +104,7 @@ class MainActivity : ComponentActivity() {
         onDateOfBirthConfirmed: (DateOfBirth) -> Unit
     ) {
         var showDateOfBirthPickerDialog: Boolean by remember { mutableStateOf(false) }
+        var dialogDateOfBirth: DateOfBirth? by remember { mutableStateOf(null) }
 
         Row(
             modifier = Modifier
@@ -127,7 +128,6 @@ class MainActivity : ComponentActivity() {
         }
 
         if (showDateOfBirthPickerDialog) {
-            var dialogDateOfBirth: DateOfBirth? by remember { mutableStateOf(null) }
             DateOfBirthPickerDialog(
                 dateOfBirthPickerUi = DateOfBirthPickerUi.Unified(
                     listItem = { text, heightDp, _ ->
