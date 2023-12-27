@@ -28,14 +28,14 @@ fun <T> ScrollSelectionList(
     defaultSelectedItem: T,
     numberOfDisplayedItems: Int,
     getItemText: (T) -> String,
-    selectionBackground: @Composable BoxScope.(heightDp: Dp, paddingTopDp: Dp) -> Unit,
+    selectedItemBackground: @Composable BoxScope.(heightDp: Dp, paddingTopDp: Dp) -> Unit,
     listItem: @Composable LazyItemScope.(text: String, heightDp: Dp, isSelected: Boolean) -> Unit,
     onItemSelected: (item: T) -> Unit,
     modifier: Modifier = Modifier,
     lazyColumnTestTag: String = "lazy_column_test_tag"
 ) {
     Box(modifier = modifier.height(itemHeightDp * numberOfDisplayedItems)) {
-        selectionBackground(
+        selectedItemBackground(
             itemHeightDp,
             itemHeightDp * (numberOfDisplayedItems / 2)
         )

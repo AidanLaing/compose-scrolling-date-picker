@@ -1,12 +1,7 @@
 package com.aidanlaing.composedobpicker
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -15,12 +10,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.collections.immutable.toPersistentList
 
 // TODO landscape mode / tablet
 // TODO dialog / bottom sheet options?
@@ -32,57 +24,23 @@ import kotlinx.collections.immutable.toPersistentList
 // TODO Android dev post
 @Composable
 fun DateOfBirthPicker(
-    defaultListItem: @Composable LazyItemScope.(
-        text: String,
-        heightDp: Dp,
-        isSelected: Boolean
-    ) -> Unit,
-    dateOfBirthChanged: (dateOfBirth: DateOfBirth) -> Unit,
+    dateOfBirthPickerUi: DateOfBirthPickerUi,
     maxYear: Int,
+    dateOfBirthChanged: (dateOfBirth: DateOfBirth) -> Unit,
     modifier: Modifier = Modifier,
-    itemHeightDp: Dp = 56.dp,
-    numberOfDisplayedItems: Int = 5,
-    defaultSelectedDay: Int = 1,
-    defaultSelectedMonth: Int = 0,
-    defaultSelectedYear: Int = 2000,
-    minYear: Int = 1900,
-    dateOfBirthElementOrder: Triple<DateOfBirthElement, DateOfBirthElement, DateOfBirthElement> =
-        Triple(
-            DateOfBirthElement.Year,
-            DateOfBirthElement.Month,
-            DateOfBirthElement.Day
-        ),
-    monthNames: List<String> = Month.values().map { month -> month.name }.toPersistentList(),
-    getDayText: (day: Int) -> String = { day -> day.toString() },
-    getMonthText: (month: Int) -> String = { month -> monthNames[month] },
-    getYearText: (year: Int) -> String = { year -> year.toString() },
-    selectionBackground: @Composable BoxScope.(
-        heightDp: Dp,
-        paddingTopDp: Dp
-    ) -> Unit = { heightDp, paddingTopDp ->
-        Box(
-            modifier = Modifier
-                .padding(top = paddingTopDp)
-                .height(heightDp)
-                .fillMaxWidth()
-                .background(Color.Gray.copy(alpha = 0.2f))
-        )
-    },
-    dayListItem: @Composable LazyItemScope.(text: String, heightDp: Dp, isSelected: Boolean) -> Unit = defaultListItem,
-    monthListItem: @Composable LazyItemScope.(text: String, heightDp: Dp, isSelected: Boolean) -> Unit = defaultListItem,
-    yearListItem: @Composable LazyItemScope.(text: String, heightDp: Dp, isSelected: Boolean) -> Unit = defaultListItem
+    properties: DateOfBirthPickerProperties = DateOfBirthPickerProperties()
 ) {
-    var selectedDay: Int by rememberSaveable { mutableIntStateOf(defaultSelectedDay) }
-    var selectedMonth: Int by rememberSaveable { mutableIntStateOf(defaultSelectedMonth) }
-    var selectedYear: Int by rememberSaveable { mutableIntStateOf(defaultSelectedYear) }
+    var selectedDay: Int by rememberSaveable { mutableIntStateOf(properties.defaultSelectedDay) }
+    var selectedMonth: Int by rememberSaveable { mutableIntStateOf(properties.defaultSelectedMonth) }
+    var selectedYear: Int by rememberSaveable { mutableIntStateOf(properties.defaultSelectedYear) }
     var numDays: Int by rememberSaveable { mutableIntStateOf(calculateNumDaysInMonth(selectedMonth, selectedYear)) }
 
     val dateOfBirthElementList: ImmutableList<DateOfBirthElement> =
-        remember { dateOfBirthElementOrder.toList().toImmutableList() }
+        remember { properties.dateOfBirthElementOrder.toList().toImmutableList() }
 
-    val onGetDayText: (day: Int) -> String = remember { getDayText }
-    val onGetMonthText: (month: Int) -> String = remember { getMonthText }
-    val onGetYearText: (year: Int) -> String = remember { getYearText }
+    val onGetDayText: (day: Int) -> String = remember { properties.getDayText }
+    val onGetMonthText: (month: Int) -> String = remember { properties.getMonthText }
+    val onGetYearText: (year: Int) -> String = remember { properties.getYearText }
 
     val onDaySelected: (newSelectedDay: Int) -> Unit = remember {
         { newSelectedDay ->
@@ -114,21 +72,23 @@ fun DateOfBirthPicker(
 
     DateElementRow(
         dateOfBirthElementList = dateOfBirthElementList,
-        itemHeightDp = itemHeightDp,
-        numberOfDisplayedItems = numberOfDisplayedItems,
+        itemHeightDp = properties.itemHeightDp,
+        numberOfDisplayedItems = properties.numberOfDisplayedItems,
         numDays = numDays,
-        minYear = minYear,
+        minYear = properties.minYear,
         maxYear = maxYear,
-        defaultSelectedDay = defaultSelectedDay,
-        defaultSelectedMonth = defaultSelectedMonth,
-        defaultSelectedYear = defaultSelectedYear,
+        defaultSelectedDay = properties.defaultSelectedDay,
+        defaultSelectedMonth = properties.defaultSelectedMonth,
+        defaultSelectedYear = properties.defaultSelectedYear,
         getDayText = onGetDayText,
         getMonthText = onGetMonthText,
         getYearText = onGetYearText,
-        dayListItem = dayListItem,
-        monthListItem = monthListItem,
-        yearListItem = yearListItem,
-        selectionBackground = selectionBackground,
+        dayListItem = dateOfBirthPickerUi.determineDayListItem(),
+        monthListItem = dateOfBirthPickerUi.determineMonthListItem(),
+        yearListItem = dateOfBirthPickerUi.determineYearListItem(),
+        daySelectedItemBackground = dateOfBirthPickerUi.determineDaySelectedItemBackground(),
+        monthSelectedItemBackground = dateOfBirthPickerUi.determineMonthSelectedItemBackground(),
+        yearSelectedItemBackground = dateOfBirthPickerUi.determineYearSelectedItemBackground(),
         onDaySelected = onDaySelected,
         onMonthSelected = onMonthSelected,
         onYearSelected = onYearSelected,
@@ -153,7 +113,9 @@ private fun DateElementRow(
     dayListItem: @Composable LazyItemScope.(text: String, heightDp: Dp, isSelected: Boolean) -> Unit,
     monthListItem: @Composable LazyItemScope.(text: String, heightDp: Dp, isSelected: Boolean) -> Unit,
     yearListItem: @Composable LazyItemScope.(text: String, heightDp: Dp, isSelected: Boolean) -> Unit,
-    selectionBackground: @Composable BoxScope.(heightDp: Dp, paddingTopDp: Dp) -> Unit,
+    daySelectedItemBackground: @Composable BoxScope.(heightDp: Dp, paddingTopDp: Dp) -> Unit,
+    monthSelectedItemBackground: @Composable BoxScope.(heightDp: Dp, paddingTopDp: Dp) -> Unit,
+    yearSelectedItemBackground: @Composable BoxScope.(heightDp: Dp, paddingTopDp: Dp) -> Unit,
     onDaySelected: (Int) -> Unit,
     onMonthSelected: (Int) -> Unit,
     onYearSelected: (Int) -> Unit,
@@ -170,7 +132,7 @@ private fun DateElementRow(
                         defaultSelectedItem = defaultSelectedDay,
                         numberOfDisplayedItems = numberOfDisplayedItems,
                         getItemText = getDayText,
-                        selectionBackground = selectionBackground,
+                        selectedItemBackground = daySelectedItemBackground,
                         listItem = dayListItem,
                         onItemSelected = onDaySelected,
                         modifier = Modifier.weight(1f),
@@ -186,7 +148,7 @@ private fun DateElementRow(
                         defaultSelectedItem = defaultSelectedMonth,
                         numberOfDisplayedItems = numberOfDisplayedItems,
                         getItemText = getMonthText,
-                        selectionBackground = selectionBackground,
+                        selectedItemBackground = monthSelectedItemBackground,
                         listItem = monthListItem,
                         onItemSelected = onMonthSelected,
                         modifier = Modifier.weight(1f),
@@ -202,7 +164,7 @@ private fun DateElementRow(
                         defaultSelectedItem = defaultSelectedYear.coerceIn(minYear, maxYear),
                         numberOfDisplayedItems = numberOfDisplayedItems,
                         getItemText = getYearText,
-                        selectionBackground = selectionBackground,
+                        selectedItemBackground = yearSelectedItemBackground,
                         listItem = yearListItem,
                         onItemSelected = onYearSelected,
                         modifier = Modifier.weight(1f),
