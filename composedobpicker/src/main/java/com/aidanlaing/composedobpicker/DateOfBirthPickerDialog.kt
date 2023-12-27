@@ -6,10 +6,6 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,8 +19,7 @@ fun DateOfBirthPickerDialog(
     dateOfBirthPickerUi: DateOfBirthPickerUi,
     maxYear: Int,
     backgroundColor: Color,
-    buttonFooterContent: @Composable ColumnScope.(onConfirmClick: () -> Unit, onDismissClick: () -> Unit) -> Unit,
-    onDateConfirmed: (DateOfBirth?) -> Unit,
+    dateOfBirthChanged: (DateOfBirth) -> Unit,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
     dateOfBirthPickerProperties: DateOfBirthPickerProperties = DateOfBirthPickerProperties(),
@@ -32,7 +27,7 @@ fun DateOfBirthPickerDialog(
     backgroundShape: Shape = RoundedCornerShape(16.dp),
     horizontalAlignment: Alignment.Horizontal = Alignment.End,
     headerContent: (@Composable ColumnScope.() -> Unit)? = null,
-    dateOfBirthChanged: ((DateOfBirth) -> Unit)? = null
+    footerContent: (@Composable ColumnScope.() -> Unit)? = null
 ) {
     Dialog(onDismissRequest = onDismissRequest, properties = dialogProperties) {
         Column(
@@ -43,25 +38,15 @@ fun DateOfBirthPickerDialog(
         ) {
             headerContent?.invoke(this)
 
-            var dateOfBirth: DateOfBirth? by remember { mutableStateOf(null) }
             DateOfBirthPicker(
                 dateOfBirthPickerUi = dateOfBirthPickerUi,
                 maxYear = maxYear,
-                dateOfBirthChanged = { newDateOfBirth ->
-                    dateOfBirth = newDateOfBirth
-                    dateOfBirthChanged?.invoke(newDateOfBirth)
-                },
+                dateOfBirthChanged = dateOfBirthChanged,
                 modifier = Modifier.fillMaxWidth(),
                 properties = dateOfBirthPickerProperties
             )
 
-            buttonFooterContent(
-                {
-                    onDateConfirmed(dateOfBirth)
-                    onDismissRequest()
-                },
-                onDismissRequest
-            )
+            footerContent?.invoke(this)
         }
     }
 }

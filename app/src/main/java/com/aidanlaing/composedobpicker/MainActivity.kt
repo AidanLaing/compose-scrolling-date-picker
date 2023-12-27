@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.DialogProperties
 import java.util.Calendar
 
 class MainActivity : ComponentActivity() {
@@ -34,21 +34,15 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MaterialTheme {
-
-                var dateOfBirth: DateOfBirth? by remember { mutableStateOf(null) }
-                var showDateOfBirthPickerDialog: Boolean by remember { mutableStateOf(false) }
-
                 Column(modifier = Modifier.background(color = MaterialTheme.colorScheme.background)) {
+                    var dateOfBirth: DateOfBirth? by remember { mutableStateOf(null) }
 
-                    DateOfBirthPicker(
-                        dateOfBirthPickerUi = DateOfBirthPickerUi.Unified(
-                            listItem = { text, heightDp, _ ->
-                                DateOfBirthPickerItem(text = text, heightDp = heightDp)
-                            }
-                        ),
-                        maxYear = Calendar.getInstance().get(Calendar.YEAR),
-                        dateOfBirthChanged = { newDateOfBirth -> dateOfBirth = newDateOfBirth },
-                        modifier = Modifier.fillMaxWidth()
+                    InlineSample(dateOfBirthChanged = { newDateOfBirth -> dateOfBirth = newDateOfBirth })
+
+                    Divider()
+
+                    DialogSample(
+                        onDateOfBirthConfirmed = { newDateOfBirth -> dateOfBirth = newDateOfBirth }
                     )
 
                     Divider()
@@ -60,50 +54,79 @@ class MainActivity : ComponentActivity() {
                             .padding(vertical = 24.dp),
                         textAlign = TextAlign.Center
                     )
-
-                    Divider()
-
-                    Button(
-                        onClick = { showDateOfBirthPickerDialog = true },
-                        modifier = Modifier
-                            .padding(24.dp)
-                            .align(Alignment.CenterHorizontally)
-                    ) {
-                        Text(text = "Show Picker Dialog")
-                    }
-                }
-
-                if (showDateOfBirthPickerDialog) {
-                    DateOfBirthPickerDialog(
-                        dateOfBirthPickerUi = DateOfBirthPickerUi.Unified(
-                            listItem = { text, heightDp, _ ->
-                                DateOfBirthPickerItem(text = text, heightDp = heightDp)
-                            }
-                        ),
-                        maxYear = Calendar.getInstance().get(Calendar.YEAR),
-                        buttonFooterContent = { onConfirmClick, onDismissClick ->
-                            Divider()
-                            Row(modifier = Modifier.padding(end = 16.dp, top = 8.dp, bottom = 8.dp)) {
-                                TextButton(onClick = onDismissClick, modifier = Modifier.padding(end = 8.dp)) {
-                                    Text(text = "Dismiss")
-                                }
-                                TextButton(onClick = onConfirmClick) {
-                                    Text(text = "Confirm")
-                                }
-                            }
-                        },
-                        onDateConfirmed = { newDateOfBirth -> dateOfBirth = newDateOfBirth },
-                        onDismissRequest = { showDateOfBirthPickerDialog = false },
-                        dialogProperties = DialogProperties(),
-                        backgroundColor = MaterialTheme.colorScheme.surface,
-                        dateOfBirthPickerProperties = DateOfBirthPickerProperties(
-                            defaultSelectedDay = dateOfBirth?.day ?: 1,
-                            defaultSelectedMonth = dateOfBirth?.month ?: 0,
-                            defaultSelectedYear = dateOfBirth?.year ?: 2000
-                        )
-                    )
                 }
             }
+        }
+    }
+
+    @Composable
+    private fun InlineSample(
+        dateOfBirthChanged: (dateOfBirth: DateOfBirth) -> Unit
+    ) {
+        DateOfBirthPicker(
+            dateOfBirthPickerUi = DateOfBirthPickerUi.Unified(
+                listItem = { text, heightDp, _ ->
+                    DateOfBirthPickerItem(text = text, heightDp = heightDp)
+                }
+            ),
+            maxYear = Calendar.getInstance().get(Calendar.YEAR),
+            dateOfBirthChanged = dateOfBirthChanged,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+
+    @Composable
+    private fun ColumnScope.DialogSample(
+        onDateOfBirthConfirmed: (DateOfBirth) -> Unit
+    ) {
+        var showDateOfBirthPickerDialog: Boolean by remember { mutableStateOf(false) }
+        var dialogDateOfBirth: DateOfBirth? by remember { mutableStateOf(null) }
+
+        Button(
+            onClick = { showDateOfBirthPickerDialog = true },
+            modifier = Modifier
+                .padding(24.dp)
+                .align(Alignment.CenterHorizontally)
+        ) {
+            Text(text = "Show Picker Dialog")
+        }
+
+        if (showDateOfBirthPickerDialog) {
+            DateOfBirthPickerDialog(
+                dateOfBirthPickerUi = DateOfBirthPickerUi.Unified(
+                    listItem = { text, heightDp, _ ->
+                        DateOfBirthPickerItem(text = text, heightDp = heightDp)
+                    }
+                ),
+                maxYear = Calendar.getInstance().get(Calendar.YEAR),
+                backgroundColor = MaterialTheme.colorScheme.surface,
+                dateOfBirthChanged = { newDateOfBirth -> dialogDateOfBirth = newDateOfBirth },
+                onDismissRequest = { showDateOfBirthPickerDialog = false },
+                dateOfBirthPickerProperties = DateOfBirthPickerProperties(
+                    defaultSelectedDay = dialogDateOfBirth?.day ?: 1,
+                    defaultSelectedMonth = dialogDateOfBirth?.month ?: 0,
+                    defaultSelectedYear = dialogDateOfBirth?.year ?: 2000
+                ),
+                footerContent = {
+                    Divider()
+                    Row(modifier = Modifier.padding(end = 16.dp, top = 8.dp, bottom = 8.dp)) {
+                        TextButton(
+                            onClick = { showDateOfBirthPickerDialog = false },
+                            modifier = Modifier.padding(end = 8.dp)
+                        ) {
+                            Text(text = "Dismiss")
+                        }
+                        TextButton(
+                            onClick = {
+                                showDateOfBirthPickerDialog = false
+                                dialogDateOfBirth?.let { newDateOfBirth -> onDateOfBirthConfirmed(newDateOfBirth) }
+                            }
+                        ) {
+                            Text(text = "Confirm")
+                        }
+                    }
+                }
+            )
         }
     }
 
