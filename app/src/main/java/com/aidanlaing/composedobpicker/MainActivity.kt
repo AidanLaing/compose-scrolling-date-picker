@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -13,6 +14,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -79,10 +81,26 @@ class MainActivity : ComponentActivity() {
                             }
                         ),
                         maxYear = Calendar.getInstance().get(Calendar.YEAR),
-                        dateOfBirthChanged = { newDateOfBirth -> dateOfBirth = newDateOfBirth },
+                        buttonFooter = { onConfirmClick, onDismissClick ->
+                            Divider()
+                            Row(modifier = Modifier.padding(end = 16.dp, top = 8.dp, bottom = 8.dp)) {
+                                TextButton(onClick = onDismissClick, modifier = Modifier.padding(end = 8.dp)) {
+                                    Text(text = "Dismiss")
+                                }
+                                TextButton(onClick = onConfirmClick) {
+                                    Text(text = "Confirm")
+                                }
+                            }
+                        },
+                        onDateConfirmed = { newDateOfBirth -> dateOfBirth = newDateOfBirth },
                         onDismissRequest = { showDateOfBirthPickerDialog = false },
                         dialogProperties = DialogProperties(),
-                        backgroundColor = MaterialTheme.colorScheme.surface
+                        backgroundColor = MaterialTheme.colorScheme.surface,
+                        dateOfBirthPickerProperties = DateOfBirthPickerProperties(
+                            defaultSelectedDay = dateOfBirth?.day ?: 1,
+                            defaultSelectedMonth = dateOfBirth?.month ?: 0,
+                            defaultSelectedYear = dateOfBirth?.year ?: 2000
+                        )
                     )
                 }
             }
