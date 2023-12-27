@@ -15,11 +15,11 @@ import androidx.compose.ui.window.DialogProperties
 fun DateOfBirthPickerDialog(
     dateOfBirthPickerUi: DateOfBirthPickerUi,
     maxYear: Int,
-    onDismissRequest: () -> Unit,
     dateOfBirthChanged: (dateOfBirth: DateOfBirth) -> Unit,
+    onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
-    dialogProperties: DialogProperties = DialogProperties(),
-    dateOfBirthPickerProperties: DateOfBirthPickerProperties = DateOfBirthPickerProperties()
+    dateOfBirthPickerProperties: DateOfBirthPickerProperties = DateOfBirthPickerProperties(),
+    dialogProperties: DialogProperties = DialogProperties()
 ) {
     Dialog(onDismissRequest = onDismissRequest, properties = dialogProperties) {
         Box(
