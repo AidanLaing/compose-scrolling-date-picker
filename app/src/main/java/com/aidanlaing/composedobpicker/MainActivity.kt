@@ -20,7 +20,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -37,7 +36,7 @@ class MainActivity : ComponentActivity() {
                 var dateOfBirth: DateOfBirth? by remember { mutableStateOf(null) }
                 var showDateOfBirthPickerDialog: Boolean by remember { mutableStateOf(false) }
 
-                Column(modifier = Modifier.background(color = Color.White)) {
+                Column(modifier = Modifier.background(color = MaterialTheme.colorScheme.background)) {
 
                     DateOfBirthPicker(
                         dateOfBirthPickerUi = DateOfBirthPickerUi.Unified(
@@ -82,7 +81,8 @@ class MainActivity : ComponentActivity() {
                         maxYear = Calendar.getInstance().get(Calendar.YEAR),
                         dateOfBirthChanged = { newDateOfBirth -> dateOfBirth = newDateOfBirth },
                         onDismissRequest = { showDateOfBirthPickerDialog = false },
-                        dialogProperties = DialogProperties()
+                        dialogProperties = DialogProperties(),
+                        backgroundColor = MaterialTheme.colorScheme.surface
                     )
                 }
             }
@@ -99,7 +99,7 @@ class MainActivity : ComponentActivity() {
             Text(
                 text = text,
                 modifier = Modifier.align(Alignment.Center),
-                color = Color.Black
+                color = MaterialTheme.colorScheme.onBackground
             )
         }
     }
