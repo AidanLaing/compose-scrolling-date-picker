@@ -1,4 +1,4 @@
-package com.aidanlaing
+package com.aidanlaing.scrollingdatepicker
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -16,7 +16,6 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.aidanlaing.composedobpicker.ScrollingSelectionList
 import kotlinx.collections.immutable.toPersistentList
 import org.junit.Assert.assertTrue
 import org.junit.Rule

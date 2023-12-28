@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.aidanlaing.composedobpicker"
+    namespace = "com.aidanlaing.scrollingdatepicker"
     compileSdk = 34
 
     defaultConfig {

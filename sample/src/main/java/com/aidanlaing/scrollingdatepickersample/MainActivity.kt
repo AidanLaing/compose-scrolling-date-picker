@@ -31,11 +31,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.aidanlaing.composedobpicker.ScrollingDatePicker
-import com.aidanlaing.composedobpicker.ScrollingDatePickerDialog
-import com.aidanlaing.composedobpicker.ScrollingDatePickerProperties
-import com.aidanlaing.composedobpicker.ScrollingDatePickerUi
-import com.aidanlaing.composedobpicker.SelectedDate
+import com.aidanlaing.scrollingdatepicker.ScrollingDatePicker
+import com.aidanlaing.scrollingdatepicker.ScrollingDatePickerDialog
+import com.aidanlaing.scrollingdatepicker.ScrollingDatePickerProperties
+import com.aidanlaing.scrollingdatepicker.ScrollingDatePickerUi
+import com.aidanlaing.scrollingdatepicker.SelectedDate
 import java.util.Calendar
 
 class MainActivity : ComponentActivity() {

@@ -1,4 +1,4 @@
-package com.aidanlaing.composedobpicker
+package com.aidanlaing.scrollingdatepicker
 
 internal fun calculateNumDaysInMonth(selectedMonth: Int, selectedYear: Int): Int =
     when (selectedMonth) {

@@ -1,4 +1,4 @@
-package com.aidanlaing.composedobpicker
+package com.aidanlaing.scrollingdatepicker
 
 import androidx.compose.runtime.Immutable
 

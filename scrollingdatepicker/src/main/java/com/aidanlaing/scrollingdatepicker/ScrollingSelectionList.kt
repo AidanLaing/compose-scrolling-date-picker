@@ -1,4 +1,4 @@
-package com.aidanlaing.composedobpicker
+package com.aidanlaing.scrollingdatepicker
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior

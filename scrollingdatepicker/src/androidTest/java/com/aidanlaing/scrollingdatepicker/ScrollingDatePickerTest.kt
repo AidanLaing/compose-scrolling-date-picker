@@ -1,4 +1,4 @@
-package com.aidanlaing
+package com.aidanlaing.scrollingdatepicker
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -13,9 +13,6 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performScrollToIndex
-import com.aidanlaing.composedobpicker.ScrollingDatePicker
-import com.aidanlaing.composedobpicker.ScrollingDatePickerUi
-import com.aidanlaing.composedobpicker.SelectedDate
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test

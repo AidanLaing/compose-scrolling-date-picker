@@ -1,4 +1,4 @@
-package com.aidanlaing.composedobpicker
+package com.aidanlaing.scrollingdatepicker
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
