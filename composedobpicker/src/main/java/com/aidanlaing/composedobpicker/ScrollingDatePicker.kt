@@ -14,27 +14,26 @@ import androidx.compose.ui.unit.Dp
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 
-// TODO rename to DateScrollPicker
 // TODO reduce gradle dependencies, min sdk
 // TODO integration testing with CI
 // TODO README
 // TODO Maven publishing
 // TODO Android dev post
 @Composable
-fun DateOfBirthPicker(
-    dateOfBirthPickerUi: DateOfBirthPickerUi,
+fun ScrollingDatePicker(
+    scrollingDatePickerUi: ScrollingDatePickerUi,
     maxYear: Int,
-    dateOfBirthChanged: (dateOfBirth: DateOfBirth) -> Unit,
+    dateChanged: (scrollingDate: ScrollingDate) -> Unit,
     modifier: Modifier = Modifier,
-    properties: DateOfBirthPickerProperties = DateOfBirthPickerProperties()
+    properties: ScrollingDatePickerProperties = ScrollingDatePickerProperties()
 ) {
     var selectedDay: Int by rememberSaveable { mutableIntStateOf(properties.defaultSelectedDay) }
     var selectedMonth: Int by rememberSaveable { mutableIntStateOf(properties.defaultSelectedMonth) }
     var selectedYear: Int by rememberSaveable { mutableIntStateOf(properties.defaultSelectedYear) }
     var numDays: Int by rememberSaveable { mutableIntStateOf(calculateNumDaysInMonth(selectedMonth, selectedYear)) }
 
-    val dateOfBirthElementList: ImmutableList<DateOfBirthElement> =
-        remember { properties.dateOfBirthElementOrder.toList().toImmutableList() }
+    val scrollingDateElementList: ImmutableList<ScrollingDateElement> =
+        remember { properties.scrollingDateElementOrder.toList().toImmutableList() }
 
     val onGetDayText: (day: Int) -> String = remember { properties.getDayText }
     val onGetMonthText: (month: Int) -> String = remember { properties.getMonthText }
@@ -45,7 +44,7 @@ fun DateOfBirthPicker(
             val validatedDay = ensureValidDayNum(newSelectedDay, selectedMonth, selectedYear)
             selectedDay = validatedDay
             numDays = calculateNumDaysInMonth(selectedMonth, selectedYear)
-            dateOfBirthChanged(DateOfBirth(validatedDay, selectedMonth, selectedYear))
+            dateChanged(ScrollingDate(validatedDay, selectedMonth, selectedYear))
         }
     }
 
@@ -55,7 +54,7 @@ fun DateOfBirthPicker(
             selectedDay = validatedDay
             selectedMonth = newSelectedMonth
             numDays = calculateNumDaysInMonth(newSelectedMonth, selectedYear)
-            dateOfBirthChanged(DateOfBirth(validatedDay, newSelectedMonth, selectedYear))
+            dateChanged(ScrollingDate(validatedDay, newSelectedMonth, selectedYear))
         }
     }
 
@@ -65,12 +64,12 @@ fun DateOfBirthPicker(
             selectedDay = validatedDay
             selectedYear = newSelectedYear
             numDays = calculateNumDaysInMonth(selectedMonth, newSelectedYear)
-            dateOfBirthChanged(DateOfBirth(validatedDay, selectedMonth, newSelectedYear))
+            dateChanged(ScrollingDate(validatedDay, selectedMonth, newSelectedYear))
         }
     }
 
     DateElementRow(
-        dateOfBirthElementList = dateOfBirthElementList,
+        scrollingDateElementList = scrollingDateElementList,
         itemHeightDp = properties.itemHeightDp,
         numberOfDisplayedItems = properties.numberOfDisplayedItems,
         numDays = numDays,
@@ -82,12 +81,12 @@ fun DateOfBirthPicker(
         getDayText = onGetDayText,
         getMonthText = onGetMonthText,
         getYearText = onGetYearText,
-        dayListItem = dateOfBirthPickerUi.determineDayListItem(),
-        monthListItem = dateOfBirthPickerUi.determineMonthListItem(),
-        yearListItem = dateOfBirthPickerUi.determineYearListItem(),
-        daySelectedItemBackground = dateOfBirthPickerUi.determineDaySelectedItemBackground(),
-        monthSelectedItemBackground = dateOfBirthPickerUi.determineMonthSelectedItemBackground(),
-        yearSelectedItemBackground = dateOfBirthPickerUi.determineYearSelectedItemBackground(),
+        dayListItem = scrollingDatePickerUi.determineDayListItem(),
+        monthListItem = scrollingDatePickerUi.determineMonthListItem(),
+        yearListItem = scrollingDatePickerUi.determineYearListItem(),
+        daySelectedItemBackground = scrollingDatePickerUi.determineDaySelectedItemBackground(),
+        monthSelectedItemBackground = scrollingDatePickerUi.determineMonthSelectedItemBackground(),
+        yearSelectedItemBackground = scrollingDatePickerUi.determineYearSelectedItemBackground(),
         onDaySelected = onDaySelected,
         onMonthSelected = onMonthSelected,
         onYearSelected = onYearSelected,
@@ -97,7 +96,7 @@ fun DateOfBirthPicker(
 
 @Composable
 private fun DateElementRow(
-    dateOfBirthElementList: ImmutableList<DateOfBirthElement>,
+    scrollingDateElementList: ImmutableList<ScrollingDateElement>,
     itemHeightDp: Dp,
     numberOfDisplayedItems: Int,
     numDays: Int,
@@ -121,11 +120,11 @@ private fun DateElementRow(
     modifier: Modifier = Modifier
 ) {
     Row(modifier = modifier) {
-        dateOfBirthElementList.forEach { dateElement ->
+        scrollingDateElementList.forEach { dateElement ->
             when (dateElement) {
-                DateOfBirthElement.Day -> {
+                ScrollingDateElement.Day -> {
                     val dayItems: ImmutableList<Int> = (1..numDays).toImmutableList()
-                    ScrollSelectionList(
+                    ScrollingSelectionList(
                         items = dayItems,
                         itemHeightDp = itemHeightDp,
                         defaultSelectedItem = defaultSelectedDay,
@@ -139,9 +138,9 @@ private fun DateElementRow(
                     )
                 }
 
-                DateOfBirthElement.Month -> {
+                ScrollingDateElement.Month -> {
                     val monthItems: ImmutableList<Int> = (0..11).toImmutableList()
-                    ScrollSelectionList(
+                    ScrollingSelectionList(
                         items = monthItems,
                         itemHeightDp = itemHeightDp,
                         defaultSelectedItem = defaultSelectedMonth,
@@ -155,9 +154,9 @@ private fun DateElementRow(
                     )
                 }
 
-                DateOfBirthElement.Year -> {
+                ScrollingDateElement.Year -> {
                     val yearItems: ImmutableList<Int> = (minYear..maxYear).toImmutableList()
-                    ScrollSelectionList(
+                    ScrollingSelectionList(
                         items = yearItems,
                         itemHeightDp = itemHeightDp,
                         defaultSelectedItem = defaultSelectedYear.coerceIn(minYear, maxYear),

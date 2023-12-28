@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.Dp
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun <T> ScrollSelectionList(
+fun <T> ScrollingSelectionList(
     items: List<T>,
     itemHeightDp: Dp,
     defaultSelectedItem: T,

@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 
-sealed class DateOfBirthPickerUi {
+sealed class ScrollingDatePickerUi {
 
     @Immutable
     data class Unified(
@@ -22,7 +22,7 @@ sealed class DateOfBirthPickerUi {
             heightDp: Dp,
             paddingTopDp: Dp
         ) -> Unit = { heightDp, paddingTopDp -> DefaultSelectedItemBackground(heightDp, paddingTopDp) }
-    ) : DateOfBirthPickerUi()
+    ) : ScrollingDatePickerUi()
 
     @Immutable
     data class Separate(
@@ -41,7 +41,7 @@ sealed class DateOfBirthPickerUi {
             heightDp: Dp,
             paddingTopDp: Dp
         ) -> Unit = { heightDp, paddingTopDp -> DefaultSelectedItemBackground(heightDp, paddingTopDp) }
-    ) : DateOfBirthPickerUi()
+    ) : ScrollingDatePickerUi()
 
     fun determineDayListItem() = when (this) {
         is Unified -> listItem

@@ -15,14 +15,14 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 
 @Composable
-fun DateOfBirthPickerDialog(
-    dateOfBirthPickerUi: DateOfBirthPickerUi,
+fun ScrollingDatePickerDialog(
+    scrollingDatePickerUi: ScrollingDatePickerUi,
     maxYear: Int,
     backgroundColor: Color,
-    dateOfBirthChanged: (DateOfBirth) -> Unit,
+    dateChanged: (ScrollingDate) -> Unit,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
-    dateOfBirthPickerProperties: DateOfBirthPickerProperties = DateOfBirthPickerProperties(),
+    scrollingDatePickerProperties: ScrollingDatePickerProperties = ScrollingDatePickerProperties(),
     dialogProperties: DialogProperties = DialogProperties(),
     backgroundShape: Shape = RoundedCornerShape(16.dp),
     horizontalAlignment: Alignment.Horizontal = Alignment.End,
@@ -38,12 +38,12 @@ fun DateOfBirthPickerDialog(
         ) {
             headerContent?.invoke(this)
 
-            DateOfBirthPicker(
-                dateOfBirthPickerUi = dateOfBirthPickerUi,
+            ScrollingDatePicker(
+                scrollingDatePickerUi = scrollingDatePickerUi,
                 maxYear = maxYear,
-                dateOfBirthChanged = dateOfBirthChanged,
+                dateChanged = dateChanged,
                 modifier = Modifier.fillMaxWidth(),
-                properties = dateOfBirthPickerProperties
+                properties = scrollingDatePickerProperties
             )
 
             footerContent?.invoke(this)

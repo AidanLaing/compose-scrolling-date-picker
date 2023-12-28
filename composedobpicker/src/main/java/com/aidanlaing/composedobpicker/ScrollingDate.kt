@@ -1,6 +1,6 @@
 package com.aidanlaing.composedobpicker
 
-data class DateOfBirth(val day: Int, val month: Int, val year: Int) {
+data class ScrollingDate(val day: Int, val month: Int, val year: Int) {
 
     fun monthAsEnumType(): Month = Month.values()[month]
 

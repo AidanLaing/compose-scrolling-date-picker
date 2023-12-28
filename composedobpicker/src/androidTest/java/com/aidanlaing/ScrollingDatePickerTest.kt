@@ -13,42 +13,42 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performScrollToIndex
-import com.aidanlaing.composedobpicker.DateOfBirth
-import com.aidanlaing.composedobpicker.DateOfBirthPicker
-import com.aidanlaing.composedobpicker.DateOfBirthPickerUi
+import com.aidanlaing.composedobpicker.ScrollingDate
+import com.aidanlaing.composedobpicker.ScrollingDatePicker
+import com.aidanlaing.composedobpicker.ScrollingDatePickerUi
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 
-class DateOfBirthPickerTest {
+class ScrollingDatePickerTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
 
     @Test
-    fun dateOfBirthPickerInitialState() {
-        DateOfBirthRobot(composeTestRule = composeTestRule)
+    fun scrollingDatePickerInitialState() {
+        ScrollingDatePickerRobot(composeTestRule = composeTestRule)
             .itemWithTagIsDisplayed("2000")
             .itemWithTagIsDisplayed("January")
             .itemWithTagIsDisplayed("1")
-            .assertSelectedItems { items -> items.last() == DateOfBirth(1, 0, 2000) }
+            .assertSelectedItems { items -> items.last() == ScrollingDate(1, 0, 2000) }
     }
 
     @Test
-    fun dateOfBirthPickerLeapYearFeb29thSelection() {
-        DateOfBirthRobot(composeTestRule = composeTestRule)
+    fun scrollingDatePickerLeapYearFeb29thSelection() {
+        ScrollingDatePickerRobot(composeTestRule = composeTestRule)
             .scrollToIndex(96, "year_lazy_column_test_tag")
             .scrollToIndex(1, "month_lazy_column_test_tag")
             .scrollToIndex(28, "day_lazy_column_test_tag")
             .itemWithTagIsDisplayed("1996")
             .itemWithTagIsDisplayed("February")
             .itemWithTagIsDisplayed("29")
-            .assertSelectedItems { items -> items.last() == DateOfBirth(29, 1, 1996) }
+            .assertSelectedItems { items -> items.last() == ScrollingDate(29, 1, 1996) }
     }
 
     @Test
-    fun dateOfBirthPickerMarch31ToFeb28NotLeapYear() {
-        DateOfBirthRobot(composeTestRule = composeTestRule)
+    fun scrollingDatePickerMarch31ToFeb28NotLeapYear() {
+        ScrollingDatePickerRobot(composeTestRule = composeTestRule)
             .scrollToIndex(95, "year_lazy_column_test_tag")
             .scrollToIndex(2, "month_lazy_column_test_tag")
             .scrollToIndex(30, "day_lazy_column_test_tag")
@@ -56,40 +56,40 @@ class DateOfBirthPickerTest {
             .itemWithTagIsDisplayed("1995")
             .itemWithTagIsDisplayed("February")
             .itemWithTagIsDisplayed("28")
-            .assertSelectedItems { items -> items.last() == DateOfBirth(28, 1, 1995) }
+            .assertSelectedItems { items -> items.last() == ScrollingDate(28, 1, 1995) }
     }
 
-    private class DateOfBirthRobot(
+    private class ScrollingDatePickerRobot(
         private val composeTestRule: ComposeContentTestRule,
-        private val selectedDateOfBirthItems: MutableList<DateOfBirth> = mutableListOf()
+        private val selectedScrollingDateItems: MutableList<ScrollingDate> = mutableListOf()
     ) {
 
         init {
             composeTestRule.setContent {
-                TestDateOfBirthPicker()
+                TestScrollingDatePicker()
             }
         }
 
-        fun itemWithTagIsDisplayed(tag: String): DateOfBirthRobot {
+        fun itemWithTagIsDisplayed(tag: String): ScrollingDatePickerRobot {
             composeTestRule.onNodeWithTag(tag).assertIsDisplayed()
-            return this@DateOfBirthRobot
+            return this@ScrollingDatePickerRobot
         }
 
-        fun scrollToIndex(index: Int, tag: String): DateOfBirthRobot {
+        fun scrollToIndex(index: Int, tag: String): ScrollingDatePickerRobot {
             composeTestRule.onNodeWithTag(tag).performScrollToIndex(index)
-            return this@DateOfBirthRobot
+            return this@ScrollingDatePickerRobot
         }
 
-        fun assertSelectedItems(condition: (items: List<DateOfBirth>) -> Boolean): DateOfBirthRobot {
-            Assert.assertTrue(condition(selectedDateOfBirthItems))
-            return this@DateOfBirthRobot
+        fun assertSelectedItems(condition: (items: List<ScrollingDate>) -> Boolean): ScrollingDatePickerRobot {
+            Assert.assertTrue(condition(selectedScrollingDateItems))
+            return this@ScrollingDatePickerRobot
         }
 
         @Composable
         @Suppress("TestFunctionName")
-        private fun TestDateOfBirthPicker() {
-            DateOfBirthPicker(
-                dateOfBirthPickerUi = DateOfBirthPickerUi.Unified(
+        private fun TestScrollingDatePicker() {
+            ScrollingDatePicker(
+                scrollingDatePickerUi = ScrollingDatePickerUi.Unified(
                     listItem = { text, heightDp, _ ->
                         Box(
                             modifier = Modifier
@@ -101,8 +101,8 @@ class DateOfBirthPickerTest {
                     }
                 ),
                 maxYear = 2023,
-                dateOfBirthChanged = { dateOfBirth ->
-                    selectedDateOfBirthItems += dateOfBirth
+                dateChanged = { newDate ->
+                    selectedScrollingDateItems += newDate
                 }
             )
         }
