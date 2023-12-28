@@ -5,6 +5,7 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -13,6 +14,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "compose-dob-picker"
-include(":app")
-include(":composedobpicker")
+rootProject.name = "compose-scrolling-date-picker"
+include(":sample")
+include(":scrollingdatepicker")

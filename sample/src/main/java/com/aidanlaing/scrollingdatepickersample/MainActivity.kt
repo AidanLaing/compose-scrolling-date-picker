@@ -1,4 +1,4 @@
-package com.aidanlaing.composedobpicker
+package com.aidanlaing.scrollingdatepickersample
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -31,6 +31,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.aidanlaing.composedobpicker.ScrollingDatePicker
+import com.aidanlaing.composedobpicker.ScrollingDatePickerDialog
+import com.aidanlaing.composedobpicker.ScrollingDatePickerProperties
+import com.aidanlaing.composedobpicker.ScrollingDatePickerUi
+import com.aidanlaing.composedobpicker.SelectedDate
 import java.util.Calendar
 
 class MainActivity : ComponentActivity() {
