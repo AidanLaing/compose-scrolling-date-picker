@@ -19,7 +19,7 @@ fun ScrollingDatePickerDialog(
     scrollingDatePickerUi: ScrollingDatePickerUi,
     maxYear: Int,
     backgroundColor: Color,
-    dateChanged: (ScrollingDate) -> Unit,
+    dateChanged: (SelectedDate) -> Unit,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
     scrollingDatePickerProperties: ScrollingDatePickerProperties = ScrollingDatePickerProperties(),

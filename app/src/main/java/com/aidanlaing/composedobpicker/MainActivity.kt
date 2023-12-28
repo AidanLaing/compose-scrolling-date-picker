@@ -40,19 +40,19 @@ class MainActivity : ComponentActivity() {
         setContent {
             MaterialTheme {
                 Column(modifier = Modifier.verticalScroll(state = rememberScrollState())) {
-                    var inlineDateOfBirth: DateOfBirth? by remember { mutableStateOf(null) }
-                    var dialogDateOfBirth: DateOfBirth? by remember { mutableStateOf(null) }
+                    var inlineSelectedDate: SelectedDate? by remember { mutableStateOf(null) }
+                    var dialogSelectedDate: SelectedDate? by remember { mutableStateOf(null) }
 
                     InlineSample(
-                        dateOfBirth = inlineDateOfBirth,
-                        dateOfBirthChanged = { newDateOfBirth -> inlineDateOfBirth = newDateOfBirth }
+                        selectedDate = inlineSelectedDate,
+                        dateChanged = { newDate -> inlineSelectedDate = newDate }
                     )
 
                     Divider()
 
                     DialogSample(
-                        dateOfBirth = dialogDateOfBirth,
-                        onDateOfBirthConfirmed = { newDateOfBirth -> dialogDateOfBirth = newDateOfBirth }
+                        selectedDate = dialogSelectedDate,
+                        dateConfirmed = { newDate -> dialogSelectedDate = newDate }
                     )
 
                     Divider()
@@ -63,8 +63,8 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     private fun InlineSample(
-        dateOfBirth: DateOfBirth?,
-        dateOfBirthChanged: (dateOfBirth: DateOfBirth) -> Unit
+        selectedDate: SelectedDate?,
+        dateChanged: (selectedDate: SelectedDate) -> Unit
     ) {
         Column(
             modifier = Modifier
@@ -75,7 +75,7 @@ class MainActivity : ComponentActivity() {
                 .border(1.dp, color = DividerDefaults.color, shape = RoundedCornerShape(24.dp))
         ) {
             Text(
-                text = dateOfBirth?.asText(pattern = "mmmm dz, yyyy") ?: "",
+                text = selectedDate?.asText(pattern = "mmmm dz, yyyy") ?: "",
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(all = 16.dp),
@@ -85,14 +85,14 @@ class MainActivity : ComponentActivity() {
 
             Divider()
 
-            DateOfBirthPicker(
-                dateOfBirthPickerUi = DateOfBirthPickerUi.Unified(
+            ScrollingDatePicker(
+                scrollingDatePickerUi = ScrollingDatePickerUi.Unified(
                     listItem = { text, heightDp, _ ->
-                        DateOfBirthPickerItem(text = text, heightDp = heightDp)
+                        ScrollingDatePickerItem(text = text, heightDp = heightDp)
                     }
                 ),
                 maxYear = Calendar.getInstance().get(Calendar.YEAR),
-                dateOfBirthChanged = dateOfBirthChanged,
+                dateChanged = dateChanged,
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -100,18 +100,18 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     private fun DialogSample(
-        dateOfBirth: DateOfBirth?,
-        onDateOfBirthConfirmed: (DateOfBirth) -> Unit
+        selectedDate: SelectedDate?,
+        dateConfirmed: (SelectedDate) -> Unit
     ) {
-        var showDateOfBirthPickerDialog: Boolean by remember { mutableStateOf(false) }
-        var dialogDateOfBirth: DateOfBirth? by remember { mutableStateOf(null) }
+        var showScrollingDatePickerDialog: Boolean by remember { mutableStateOf(false) }
+        var dialogSelectedDate: SelectedDate? by remember { mutableStateOf(null) }
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp)
                 .background(color = MaterialTheme.colorScheme.background)
-                .clickable { showDateOfBirthPickerDialog = true },
+                .clickable { showScrollingDatePickerDialog = true },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -121,34 +121,34 @@ class MainActivity : ComponentActivity() {
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
-                text = dateOfBirth?.asText(pattern = "mmmm dz, yyyy") ?: "",
+                text = selectedDate?.asText(pattern = "mmmm dz, yyyy") ?: "",
                 modifier = Modifier.padding(end = 16.dp),
                 style = MaterialTheme.typography.bodyMedium
             )
         }
 
-        if (showDateOfBirthPickerDialog) {
-            DateOfBirthPickerDialog(
-                dateOfBirthPickerUi = DateOfBirthPickerUi.Unified(
+        if (showScrollingDatePickerDialog) {
+            ScrollingDatePickerDialog(
+                scrollingDatePickerUi = ScrollingDatePickerUi.Unified(
                     listItem = { text, heightDp, _ ->
-                        DateOfBirthPickerItem(text = text, heightDp = heightDp)
+                        ScrollingDatePickerItem(text = text, heightDp = heightDp)
                     }
                 ),
                 maxYear = Calendar.getInstance().get(Calendar.YEAR),
                 backgroundColor = MaterialTheme.colorScheme.surface,
-                dateOfBirthChanged = { newDateOfBirth -> dialogDateOfBirth = newDateOfBirth },
-                onDismissRequest = { showDateOfBirthPickerDialog = false },
-                dateOfBirthPickerProperties = DateOfBirthPickerProperties(
-                    defaultSelectedDay = dialogDateOfBirth?.day ?: 1,
-                    defaultSelectedMonth = dialogDateOfBirth?.month ?: 0,
-                    defaultSelectedYear = dialogDateOfBirth?.year ?: 2000
+                dateChanged = { newDate -> dialogSelectedDate = newDate },
+                onDismissRequest = { showScrollingDatePickerDialog = false },
+                scrollingDatePickerProperties = ScrollingDatePickerProperties(
+                    defaultSelectedDay = dialogSelectedDate?.day ?: 1,
+                    defaultSelectedMonth = dialogSelectedDate?.month ?: 0,
+                    defaultSelectedYear = dialogSelectedDate?.year ?: 2000
                 ),
                 footerContent = {
                     DialogFooterContent(
-                        onDismiss = { showDateOfBirthPickerDialog = false },
+                        onDismiss = { showScrollingDatePickerDialog = false },
                         onConfirm = {
-                            showDateOfBirthPickerDialog = false
-                            dialogDateOfBirth?.let { newDateOfBirth -> onDateOfBirthConfirmed(newDateOfBirth) }
+                            showScrollingDatePickerDialog = false
+                            dialogSelectedDate?.let { newDate -> dateConfirmed(newDate) }
                         }
                     )
                 }
@@ -176,7 +176,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    private fun DateOfBirthPickerItem(text: String, heightDp: Dp) {
+    private fun ScrollingDatePickerItem(text: String, heightDp: Dp) {
         Box(
             modifier = Modifier
                 .height(heightDp)

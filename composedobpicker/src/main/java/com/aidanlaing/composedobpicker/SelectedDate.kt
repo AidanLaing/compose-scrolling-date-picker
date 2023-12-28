@@ -1,6 +1,9 @@
 package com.aidanlaing.composedobpicker
 
-data class ScrollingDate(val day: Int, val month: Int, val year: Int) {
+import androidx.compose.runtime.Immutable
+
+@Immutable
+data class SelectedDate(val day: Int, val month: Int, val year: Int) {
 
     fun monthAsEnumType(): Month = Month.values()[month]
 

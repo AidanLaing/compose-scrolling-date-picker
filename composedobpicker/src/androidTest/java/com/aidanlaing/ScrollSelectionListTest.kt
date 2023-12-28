@@ -16,7 +16,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.aidanlaing.composedobpicker.ScrollSelectionList
+import com.aidanlaing.composedobpicker.ScrollingSelectionList
 import kotlinx.collections.immutable.toPersistentList
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -108,7 +108,7 @@ class ScrollSelectionListTest {
         @Composable
         @Suppress("TestFunctionName")
         private fun TestScrollSelectionList() {
-            ScrollSelectionList(
+            ScrollingSelectionList(
                 items = (0..numItems).toPersistentList(),
                 itemHeightDp = 56.dp,
                 defaultSelectedItem = defaultSelectedItem,

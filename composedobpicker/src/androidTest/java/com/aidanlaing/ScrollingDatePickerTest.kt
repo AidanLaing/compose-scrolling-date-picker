@@ -13,9 +13,9 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performScrollToIndex
-import com.aidanlaing.composedobpicker.ScrollingDate
 import com.aidanlaing.composedobpicker.ScrollingDatePicker
 import com.aidanlaing.composedobpicker.ScrollingDatePickerUi
+import com.aidanlaing.composedobpicker.SelectedDate
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
@@ -31,7 +31,7 @@ class ScrollingDatePickerTest {
             .itemWithTagIsDisplayed("2000")
             .itemWithTagIsDisplayed("January")
             .itemWithTagIsDisplayed("1")
-            .assertSelectedItems { items -> items.last() == ScrollingDate(1, 0, 2000) }
+            .assertSelectedItems { items -> items.last() == SelectedDate(1, 0, 2000) }
     }
 
     @Test
@@ -43,7 +43,7 @@ class ScrollingDatePickerTest {
             .itemWithTagIsDisplayed("1996")
             .itemWithTagIsDisplayed("February")
             .itemWithTagIsDisplayed("29")
-            .assertSelectedItems { items -> items.last() == ScrollingDate(29, 1, 1996) }
+            .assertSelectedItems { items -> items.last() == SelectedDate(29, 1, 1996) }
     }
 
     @Test
@@ -56,12 +56,12 @@ class ScrollingDatePickerTest {
             .itemWithTagIsDisplayed("1995")
             .itemWithTagIsDisplayed("February")
             .itemWithTagIsDisplayed("28")
-            .assertSelectedItems { items -> items.last() == ScrollingDate(28, 1, 1995) }
+            .assertSelectedItems { items -> items.last() == SelectedDate(28, 1, 1995) }
     }
 
     private class ScrollingDatePickerRobot(
         private val composeTestRule: ComposeContentTestRule,
-        private val selectedScrollingDateItems: MutableList<ScrollingDate> = mutableListOf()
+        private val selectedDateItems: MutableList<SelectedDate> = mutableListOf()
     ) {
 
         init {
@@ -80,8 +80,8 @@ class ScrollingDatePickerTest {
             return this@ScrollingDatePickerRobot
         }
 
-        fun assertSelectedItems(condition: (items: List<ScrollingDate>) -> Boolean): ScrollingDatePickerRobot {
-            Assert.assertTrue(condition(selectedScrollingDateItems))
+        fun assertSelectedItems(condition: (items: List<SelectedDate>) -> Boolean): ScrollingDatePickerRobot {
+            Assert.assertTrue(condition(selectedDateItems))
             return this@ScrollingDatePickerRobot
         }
 
@@ -102,7 +102,7 @@ class ScrollingDatePickerTest {
                 ),
                 maxYear = 2023,
                 dateChanged = { newDate ->
-                    selectedScrollingDateItems += newDate
+                    selectedDateItems += newDate
                 }
             )
         }

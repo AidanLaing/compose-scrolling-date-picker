@@ -23,7 +23,7 @@ import kotlinx.collections.immutable.toImmutableList
 fun ScrollingDatePicker(
     scrollingDatePickerUi: ScrollingDatePickerUi,
     maxYear: Int,
-    dateChanged: (scrollingDate: ScrollingDate) -> Unit,
+    dateChanged: (selectedDate: SelectedDate) -> Unit,
     modifier: Modifier = Modifier,
     properties: ScrollingDatePickerProperties = ScrollingDatePickerProperties()
 ) {
@@ -44,7 +44,7 @@ fun ScrollingDatePicker(
             val validatedDay = ensureValidDayNum(newSelectedDay, selectedMonth, selectedYear)
             selectedDay = validatedDay
             numDays = calculateNumDaysInMonth(selectedMonth, selectedYear)
-            dateChanged(ScrollingDate(validatedDay, selectedMonth, selectedYear))
+            dateChanged(SelectedDate(validatedDay, selectedMonth, selectedYear))
         }
     }
 
@@ -54,7 +54,7 @@ fun ScrollingDatePicker(
             selectedDay = validatedDay
             selectedMonth = newSelectedMonth
             numDays = calculateNumDaysInMonth(newSelectedMonth, selectedYear)
-            dateChanged(ScrollingDate(validatedDay, newSelectedMonth, selectedYear))
+            dateChanged(SelectedDate(validatedDay, newSelectedMonth, selectedYear))
         }
     }
 
@@ -64,7 +64,7 @@ fun ScrollingDatePicker(
             selectedDay = validatedDay
             selectedYear = newSelectedYear
             numDays = calculateNumDaysInMonth(selectedMonth, newSelectedYear)
-            dateChanged(ScrollingDate(validatedDay, selectedMonth, newSelectedYear))
+            dateChanged(SelectedDate(validatedDay, selectedMonth, newSelectedYear))
         }
     }
 
