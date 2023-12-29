@@ -86,7 +86,7 @@ class ScrollingDatePickerTest {
         @Suppress("TestFunctionName")
         private fun TestScrollingDatePicker() {
             ScrollingDatePicker(
-                scrollingDatePickerUi = ScrollingDatePickerUi.Unified(
+                scrollingDatePickerUi = ScrollingDatePickerUi.Shared(
                     listItem = { text, heightDp, _ ->
                         Box(
                             modifier = Modifier

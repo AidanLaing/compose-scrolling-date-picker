@@ -28,9 +28,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.aidanlaing.scrollingdatepicker.DefaultSelectedItemBackground
 import com.aidanlaing.scrollingdatepicker.ScrollingDatePicker
 import com.aidanlaing.scrollingdatepicker.ScrollingDatePickerDialog
 import com.aidanlaing.scrollingdatepicker.ScrollingDatePickerProperties
@@ -91,9 +93,18 @@ class MainActivity : ComponentActivity() {
             Divider()
 
             ScrollingDatePicker(
-                scrollingDatePickerUi = ScrollingDatePickerUi.Unified(
+                scrollingDatePickerUi = ScrollingDatePickerUi.Shared(
                     listItem = { text, heightDp, _ ->
                         ScrollingDatePickerItem(text = text, heightDp = heightDp)
+                    },
+                    selectedItemBackground = { heightDp, paddingTopDp ->
+                        Box(
+                            modifier = Modifier
+                                .padding(top = paddingTopDp)
+                                .height(heightDp)
+                                .fillMaxWidth()
+                                .background(Color.Gray.copy(alpha = 0.2f))
+                        )
                     }
                 ),
                 maxYear = Calendar.getInstance().get(Calendar.YEAR),
@@ -133,9 +144,25 @@ class MainActivity : ComponentActivity() {
 
         if (showScrollingDatePickerDialog) {
             ScrollingDatePickerDialog(
-                scrollingDatePickerUi = ScrollingDatePickerUi.Unified(
-                    listItem = { text, heightDp, _ ->
-                        ScrollingDatePickerItem(text = text, heightDp = heightDp)
+                scrollingDatePickerUi = ScrollingDatePickerUi.Separated(
+                    dayListItem = { text, heightDp, _ ->
+                        ScrollingDatePickerItem(
+                            text = text,
+                            heightDp = heightDp,
+                            textColor = MaterialTheme.colorScheme.primary
+                        )
+                    },
+                    monthListItem = { text, heightDp, _ ->
+                        ScrollingDatePickerItem(
+                            text = text, heightDp = heightDp,
+                            textColor = MaterialTheme.colorScheme.secondary
+                        )
+                    },
+                    yearListItem = { text, heightDp, _ ->
+                        ScrollingDatePickerItem(
+                            text = text, heightDp = heightDp,
+                            textColor = MaterialTheme.colorScheme.tertiary
+                        )
                     }
                 ),
                 maxYear = Calendar.getInstance().get(Calendar.YEAR),
@@ -180,7 +207,11 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    private fun ScrollingDatePickerItem(text: String, heightDp: Dp) {
+    private fun ScrollingDatePickerItem(
+        text: String,
+        heightDp: Dp,
+        textColor: Color = MaterialTheme.colorScheme.onBackground
+    ) {
         Box(
             modifier = Modifier
                 .height(heightDp)
@@ -189,7 +220,8 @@ class MainActivity : ComponentActivity() {
             Text(
                 text = text,
                 modifier = Modifier.align(Alignment.Center),
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
+                color = textColor
             )
         }
     }

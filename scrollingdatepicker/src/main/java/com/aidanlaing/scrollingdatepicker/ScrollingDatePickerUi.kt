@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.Dp
 sealed class ScrollingDatePickerUi {
 
     @Immutable
-    data class Unified(
+    data class Shared(
         val listItem: @Composable LazyItemScope.(text: String, heightDp: Dp, isSelected: Boolean) -> Unit,
         val selectedItemBackground: @Composable BoxScope.(
             heightDp: Dp,
@@ -25,7 +25,7 @@ sealed class ScrollingDatePickerUi {
     ) : ScrollingDatePickerUi()
 
     @Immutable
-    data class Separate(
+    data class Separated(
         val dayListItem: @Composable LazyItemScope.(text: String, heightDp: Dp, isSelected: Boolean) -> Unit,
         val monthListItem: @Composable LazyItemScope.(text: String, heightDp: Dp, isSelected: Boolean) -> Unit,
         val yearListItem: @Composable LazyItemScope.(text: String, heightDp: Dp, isSelected: Boolean) -> Unit,
@@ -44,33 +44,33 @@ sealed class ScrollingDatePickerUi {
     ) : ScrollingDatePickerUi()
 
     fun determineDayListItem() = when (this) {
-        is Unified -> listItem
-        is Separate -> dayListItem
+        is Shared -> listItem
+        is Separated -> dayListItem
     }
 
     fun determineMonthListItem() = when (this) {
-        is Unified -> listItem
-        is Separate -> monthListItem
+        is Shared -> listItem
+        is Separated -> monthListItem
     }
 
     fun determineYearListItem() = when (this) {
-        is Unified -> listItem
-        is Separate -> yearListItem
+        is Shared -> listItem
+        is Separated -> yearListItem
     }
 
     fun determineDaySelectedItemBackground() = when (this) {
-        is Unified -> selectedItemBackground
-        is Separate -> daySelectedItemBackground
+        is Shared -> selectedItemBackground
+        is Separated -> daySelectedItemBackground
     }
 
     fun determineMonthSelectedItemBackground() = when (this) {
-        is Unified -> selectedItemBackground
-        is Separate -> monthSelectedItemBackground
+        is Shared -> selectedItemBackground
+        is Separated -> monthSelectedItemBackground
     }
 
     fun determineYearSelectedItemBackground() = when (this) {
-        is Unified -> selectedItemBackground
-        is Separate -> yearSelectedItemBackground
+        is Shared -> selectedItemBackground
+        is Separated -> yearSelectedItemBackground
     }
 }
 
