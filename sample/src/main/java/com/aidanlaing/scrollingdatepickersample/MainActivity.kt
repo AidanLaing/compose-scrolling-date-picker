@@ -109,7 +109,6 @@ class MainActivity : ComponentActivity() {
         dateConfirmed: (SelectedDate) -> Unit
     ) {
         var showScrollingDatePickerDialog: Boolean by remember { mutableStateOf(false) }
-        var dialogSelectedDate: SelectedDate? by remember { mutableStateOf(null) }
 
         Row(
             modifier = Modifier
@@ -141,19 +140,19 @@ class MainActivity : ComponentActivity() {
                 ),
                 maxYear = Calendar.getInstance().get(Calendar.YEAR),
                 backgroundColor = MaterialTheme.colorScheme.surface,
-                dateChanged = { newDate -> dialogSelectedDate = newDate },
+                dateChanged = dateConfirmed,
                 onDismissRequest = { showScrollingDatePickerDialog = false },
                 scrollingDatePickerProperties = ScrollingDatePickerProperties(
-                    defaultSelectedDay = dialogSelectedDate?.day ?: 1,
-                    defaultSelectedMonth = dialogSelectedDate?.month ?: 0,
-                    defaultSelectedYear = dialogSelectedDate?.year ?: 2000
+                    defaultSelectedDay = selectedDate?.day ?: 1,
+                    defaultSelectedMonth = selectedDate?.month ?: 0,
+                    defaultSelectedYear = selectedDate?.year ?: 2000
                 ),
                 footerContent = {
                     DialogFooterContent(
                         onDismiss = { showScrollingDatePickerDialog = false },
                         onConfirm = {
                             showScrollingDatePickerDialog = false
-                            dialogSelectedDate?.let { newDate -> dateConfirmed(newDate) }
+                            selectedDate?.let { newDate -> dateConfirmed(newDate) }
                         }
                     )
                 }
