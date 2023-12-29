@@ -57,6 +57,9 @@ ScrollingDatePicker(
 )
 ```
 
+![Inline Image](screenshots/inline-selector.png)
+![Inline Video](screenshots/inline-video.gif)
+
 ### Dialog Separated List Item Ui
 
 ```kotlin
@@ -92,3 +95,6 @@ ScrollingDatePickerDialog(
     }
 )
 ```
+
+![Dialog Image](screenshots/dialog-selector.png)
+![Dialog Video](screenshots/dialog-video.gif)
