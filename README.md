@@ -1,4 +1,4 @@
-#Compose Scrolling Date Picker
+# Compose Scrolling Date Picker
 
 [![](https://jitpack.io/v/AidanLaing/compose-scrolling-date-picker.svg)](https://jitpack.io/#AidanLaing/compose-scrolling-date-picker)
 
