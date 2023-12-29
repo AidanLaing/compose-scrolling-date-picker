@@ -24,13 +24,13 @@ dependencies {
 
 ## Usage
 This library exposes two main Composables for selecting a date by scrolling.
-1. `[ScrollingDatePicker](scrollingdatepicker/src/main/java/com/aidanlaing/scrollingdatepicker/ScrollingDatePicker.kt)` which is will create 3 scrollable lists for selecting a day, month, and year.
-2. `[ScrollingDatePickerDialog](scrollingdatepicker/src/main/java/com/aidanlaing/scrollingdatepicker/ScrollingDatePickerDialog.kt)` which will create a Dialog with a [ScrollingDatePicker](scrollingdatepicker/src/main/java/com/aidanlaing/scrollingdatepicker/ScrollingDatePicker.kt)`
+1. [ScrollingDatePicker](scrollingdatepicker/src/main/java/com/aidanlaing/scrollingdatepicker/ScrollingDatePicker.kt) which is will create 3 scrollable lists for selecting a day, month, and year.
+2. [ScrollingDatePickerDialog](scrollingdatepicker/src/main/java/com/aidanlaing/scrollingdatepicker/ScrollingDatePickerDialog.kt) which will create a Dialog with a [ScrollingDatePicker](scrollingdatepicker/src/main/java/com/aidanlaing/scrollingdatepicker/ScrollingDatePicker.kt)`
 
 The UI items for each scrolling list can be customized with the `ScrollingDatePickerUi` allowing for the library to match the style of your app.
 Default values and localization can be customized with `ScrollingDatePickerProperties`.
 
-`[ScrollingSelectionList](scrollingdatepicker/src/main/java/com/aidanlaing/scrollingdatepicker/ScrollingSelectionList.kt)` can also be used to create your own list which selects the center item when scrolling stops.
+[ScrollingSelectionList](scrollingdatepicker/src/main/java/com/aidanlaing/scrollingdatepicker/ScrollingSelectionList.kt) can also be used to create your own list which selects the center item when scrolling stops.
 
 ### Inline Shared List Item Ui
 
