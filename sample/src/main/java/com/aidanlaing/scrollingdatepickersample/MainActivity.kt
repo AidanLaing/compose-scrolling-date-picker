@@ -32,7 +32,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.aidanlaing.scrollingdatepicker.DefaultSelectedItemBackground
 import com.aidanlaing.scrollingdatepicker.ScrollingDatePicker
 import com.aidanlaing.scrollingdatepicker.ScrollingDatePickerDialog
 import com.aidanlaing.scrollingdatepicker.ScrollingDatePickerProperties
