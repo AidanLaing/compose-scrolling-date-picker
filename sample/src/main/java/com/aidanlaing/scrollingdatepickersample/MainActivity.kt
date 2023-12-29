@@ -121,7 +121,7 @@ class MainActivity : ComponentActivity() {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Select Date of Birth",
+                text = "Select Date",
                 modifier = Modifier.padding(start = 16.dp),
                 style = MaterialTheme.typography.titleMedium
             )
