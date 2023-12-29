@@ -14,11 +14,6 @@ import androidx.compose.ui.unit.Dp
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 
-// TODO reduce gradle dependencies, min sdk
-// TODO integration testing with CI
-// TODO README
-// TODO Maven publishing
-// TODO Android dev post
 @Composable
 fun ScrollingDatePicker(
     scrollingDatePickerUi: ScrollingDatePickerUi,
