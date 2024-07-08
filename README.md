@@ -1,27 +1,6 @@
 # Compose Scrolling Date Picker
 An Android library for selecting a date by scrolling.
 
-[![](https://jitpack.io/v/AidanLaing/compose-scrolling-date-picker.svg)](https://jitpack.io/#AidanLaing/compose-scrolling-date-picker)
-
-## Download
-
-Add the jitpack.io maven url typically in `settings.gradle.kts`
-```groovy
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        mavenCentral()
-        maven { url 'https://jitpack.io' }
-    }
-}
-```
-
-```groovy
-dependencies {
-    implementation "com.github.AidanLaing:compose-scrolling-date-picker:latest-release"
-}
-```
-
 ## Usage
 This library exposes two main Composables for selecting a date by scrolling.
 1. [ScrollingDatePicker](scrollingdatepicker/src/main/java/com/aidanlaing/scrollingdatepicker/ScrollingDatePicker.kt) which is will create 3 scrollable lists for selecting a day, month, and year.
